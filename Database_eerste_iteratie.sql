@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      ORACLE Version 12c                           */
-/* Created on:     7-5-2017 19:38:21                            */
+/* Created on:     2017-05-08 13:15:03                          */
 /*==============================================================*/
 
 
@@ -109,15 +109,23 @@ drop index WERKNEMER2_FK;
 
 drop table WERKNEMER cascade constraints;
 
+drop sequence SEQUENCE_1;
+
+create sequence SEQUENCE_1
+increment by 1
+start with 1;
+
 /*==============================================================*/
 /* Table: ADRESGEGEVENS                                         */
 /*==============================================================*/
 create table ADRESGEGEVENS (
-   ADRESID              INTEGER               not null,
+   ADRESID              INTEGER               not null
+      generated as identity ( start with 1 nocycle noorder),
    POSTCODE             VARCHAR2(6)           not null,
    HUISNUMMER           INTEGER               not null,
    TOEVOEGING           CHAR(1),
-   constraint PK_ADRESGEGEVENS primary key (ADRESID)
+   constraint PK_ADRESGEGEVENS primary key (ADRESID),
+   constraint AK_IDENTIFIER_2_ADRESGEG unique (POSTCODE, HUISNUMMER, TOEVOEGING)
 );
 
 /*==============================================================*/
@@ -170,11 +178,13 @@ create index VERGUNNINGSBESTAND_FK on BESTAND (
 create table GEBRUIKER (
    GEBRUIKERSNAAM       VARCHAR2(255)         not null,
    ADRESID              INTEGER               not null,
+   WACHTWOORD           VARCHAR2(255)         not null,
    VOORNAAM             VARCHAR2(255)         not null,
-   TUSSENVOEGSEL        VARCHAR2(15)          not null,
+   TUSSENVOEGSEL        VARCHAR2(15),
    ACHTERNAAM           VARCHAR2(255)         not null,
    GEBOORTEDATUM        DATE                  not null,
-   GESLACHT             CHAR(1)               not null,
+   GESLACHT             CHAR(1)               not null
+      constraint CKC_GESLACHT_GEBRUIKE check (GESLACHT in ('M','V')),
    MAILADRES            VARCHAR2(255)         not null,
    constraint PK_GEBRUIKER primary key (GEBRUIKERSNAAM)
 );
@@ -197,7 +207,8 @@ create index FUNCTIE_VAN_GEBRUIKER_FK on GEBRUIKER (
 /* Table: PROJECT                                               */
 /*==============================================================*/
 create table PROJECT (
-   PROJECTID            INTEGER               not null,
+   PROJECTID            INTEGER               not null
+      generated as identity ( start with 1 nocycle noorder),
    ADRESID              INTEGER               not null,
    GEBRUIKERSNAAM       VARCHAR2(255)         not null,
    AANGEMAAKTOP         DATE,
@@ -255,7 +266,8 @@ create index TELEFOON_VAN_BEDRIJF_FK on TELEFOON (
 /* Table: VERGUNNING                                            */
 /*==============================================================*/
 create table VERGUNNING (
-   VERGUNNINGSID        INTEGER               not null,
+   VERGUNNINGSID        INTEGER               not null
+      generated as identity ( start with 1 nocycle noorder),
    VERGUNNINGSNAAM      VARCHAR2(255)         not null,
    STATUS               VARCHAR2(255)         not null,
    PROJECTID            INTEGER               not null,
