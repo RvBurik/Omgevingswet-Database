@@ -100,8 +100,8 @@ start with 1;
 /* Table: ADRESGEGEVENS                                         */
 /*==============================================================*/
 create table ADRESGEGEVENS (
-   ADRESID              INTEGER               not null
-      generated as identity ( start with 1 nocycle noorder),
+   ADRESID              INTEGER               
+      generated as identity ( start with 1 nocycle noorder) not null,
    POSTCODE             VARCHAR2(6)           not null,
    HUISNUMMER           NUMBER(5,0)           not null,
    TOEVOEGING           VARCHAR2(5),
@@ -162,12 +162,18 @@ create table GEBRUIKER (
    TUSSENVOEGSEL        VARCHAR2(25),
    ACHTERNAAM           VARCHAR2(255)         not null,
    GEBOORTEDATUM        DATE                  not null
-      constraint CKC_GEBOORTEDATUM_GEBRUIKE check (GEBOORTEDATUM between '01-01-1900' and add_months(sysdate, - (18*12)),
+      constraint CKC_GEBOORTEDATUM_GEBRUIKE check (
+        GEBOORTEDATUM >= to_date('01-01-1900', 'DD/MM/YYYY')
+        --and add_months(sysdate, - (18*12))
+        ),
    GESLACHT             CHAR(1)               not null
       constraint CKC_GESLACHT_GEBRUIKE check (GESLACHT in ('M','V','O')),
    MAILADRES            VARCHAR2(255)         not null,
    constraint PK_GEBRUIKER primary key (GEBRUIKERSNAAM)
 );
+
+--select TO_CHAR(add_months(sysdate, - (18*12)), 'DD-MM-YYYY') from dual
+
 
 /*==============================================================*/
 /* Table: GEBRUIKERTEL                                          */
@@ -198,13 +204,13 @@ create index GEBRUIKERTEL2_FK on GEBRUIKERTEL (
 /* Table: PROJECT                                               */
 /*==============================================================*/
 create table PROJECT (
-   PROJECTID            INTEGER               not null
-      generated as identity ( start with 1 nocycle noorder),
+   PROJECTID            INTEGER               
+      generated always as identity (start with 1 nocycle noorder) not null,
    KVKNUMMER            NUMBER(8,0),
    GEBRUIKERSNAAM       VARCHAR2(255)         not null
       constraint CKC_GEBRUIKERSNAAM_PROJECT check (GEBRUIKERSNAAM >= '4'),
    AANGEMAAKTOP         DATE                 default sysdate  not null
-      constraint CKC_AANGEMAAKTOP_PROJECT check (AANGEMAAKTOP >= '01-01-1900'),
+      constraint CKC_AANGEMAAKTOP_PROJECT check (AANGEMAAKTOP >= to_date('01-01-1900', 'DD/MM/YYYY')),
    WERKZAAMHEID         VARCHAR2(4000)        not null,
    XCOORDINAAT          FLOAT                 not null,
    YCOORDINAAT          FLOAT                 not null,
@@ -270,18 +276,18 @@ create index TELEFOON_VAN_BEDRIJF2_FK on TELEFOON_VAN_BEDRIJF (
 /* Table: VERGUNNING                                            */
 /*==============================================================*/
 create table VERGUNNING (
-   VERGUNNINGSID        INTEGER               not null
-      generated as identity ( start with 1 nocycle noorder),
+   VERGUNNINGSID        INTEGER               
+      generated always as identity (start with 1 increment by 1) not null,
    VERGUNNINGSNAAM      VARCHAR2(255)         not null,
    STATUS               VARCHAR2(255)         not null,
    PROJECTID            INTEGER               not null,
    OMSCHRIJVING         VARCHAR2(4000)        not null,
-   DATUMAANVRAAG        DATE                  not null
-      constraint CKC_DATUMAANVRAAG_VERGUNNI check (DATUMAANVRAAG >= '01-01-1900'),
-   DATUMUITGAVE         DATE                
-      constraint CKC_DATUMUITGAVE_VERGUNNI check (DATUMUITGAVE is null or (DATUMUITGAVE >= '01-01-1900')),
-   DATUMVERLOOP         DATE                
-      constraint CKC_DATUMVERLOOP_VERGUNNI check (DATUMVERLOOP is null or (DATUMVERLOOP >= '01-01-1990')),
+   DATUMAANVRAAG        DATE                  not null,
+      constraint CKC_DATUMAANVRAAG_VERGUNNI check (DATUMAANVRAAG >= to_date('01-01-1900', 'DD/MM/YYYY')),
+   DATUMUITGAVE         DATE                ,
+      constraint CKC_DATUMUITGAVE_VERGUNNI check ((DATUMUITGAVE is null) or (DATUMUITGAVE >= to_date('01-01-1900', 'DD/MM/YYYY'))),
+   DATUMVERLOOP         DATE                ,
+      constraint CKC_DATUMVERLOOP_VERGUNNI check ((DATUMVERLOOP is null) or (DATUMVERLOOP >= to_date('01-01-1900', 'DD/MM/YYYY'))),
    constraint PK_VERGUNNING primary key (VERGUNNINGSID)
 );
 
@@ -316,7 +322,7 @@ create table VERGUNNINGSINFORMATIE (
       constraint CKC_GEBRUIKERSNAAM_VERGUNNI check (GEBRUIKERSNAAM >= '4'),
    UITLEG               VARCHAR2(4000)        not null,
    DATUM                DATE                 default sysdate  not null
-      constraint CKC_DATUM_VERGUNNI check (DATUM >= '01-01-1900'),
+      constraint CKC_DATUM_VERGUNNI check (DATUM >= to_date('01-01-1900', 'DD/MM/YYYY')),
    LOCATIE              VARCHAR2(255),
    constraint PK_VERGUNNINGSINFORMATIE primary key (VERGUNNINGSID, VOLGNUMMER)
 );
