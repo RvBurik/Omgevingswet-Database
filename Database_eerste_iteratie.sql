@@ -103,8 +103,7 @@ create table ADRESGEGEVENS (
    ADRESID              INTEGER               not null
       generated as identity ( start with 1 nocycle noorder),
    POSTCODE             VARCHAR2(6)           not null,
-   HUISNUMMER           NUMBER(5,0)           not null
-      constraint CKC_HUISNUMMER_ADRESGEG check (HUISNUMMER between 00000001 and 99999999),
+   HUISNUMMER           NUMBER(5,0)           not null,
    TOEVOEGING           VARCHAR2(5),
    constraint PK_ADRESGEGEVENS primary key (ADRESID),
    constraint AK_IDENTIFIER_2_ADRESGEG unique (POSTCODE, HUISNUMMER, TOEVOEGING)
@@ -138,8 +137,7 @@ create index ADRES_VAN_GEBRUIKER2_FK on ADRES_VAN_GEBRUIKER (
 /* Table: BEDRIJF                                               */
 /*==============================================================*/
 create table BEDRIJF (
-   KVKNUMMER            NUMBER(8,0)          default 8  not null
-      constraint CKC_KVKNUMMER_BEDRIJF check (KVKNUMMER between 8 and 8),
+   KVKNUMMER            NUMBER(8,0)           not null,
    ADRESID              INTEGER               not null,
    BEDRIJFSNAAM         VARCHAR2(255)         not null,
    BEDRIJFSWACHTWOORD   VARCHAR2(255)         not null,
@@ -164,7 +162,7 @@ create table GEBRUIKER (
    TUSSENVOEGSEL        VARCHAR2(25),
    ACHTERNAAM           VARCHAR2(255)         not null,
    GEBOORTEDATUM        DATE                  not null
-      constraint CKC_GEBOORTEDATUM_GEBRUIKE check (GEBOORTEDATUM between '01-01-1900' and 'add_months(sysdate, - (18*12)'),
+      constraint CKC_GEBOORTEDATUM_GEBRUIKE check (GEBOORTEDATUM between '01-01-1900' and add_months(sysdate, - (18*12)),
    GESLACHT             CHAR(1)               not null
       constraint CKC_GESLACHT_GEBRUIKE check (GESLACHT in ('M','V','O')),
    MAILADRES            VARCHAR2(255)         not null,
@@ -202,8 +200,7 @@ create index GEBRUIKERTEL2_FK on GEBRUIKERTEL (
 create table PROJECT (
    PROJECTID            INTEGER               not null
       generated as identity ( start with 1 nocycle noorder),
-   KVKNUMMER            NUMBER(8,0)          default 8
-      constraint CKC_KVKNUMMER_PROJECT check (KVKNUMMER is null or (KVKNUMMER between 8 and 8)),
+   KVKNUMMER            NUMBER(8,0),
    GEBRUIKERSNAAM       VARCHAR2(255)         not null
       constraint CKC_GEBRUIKERSNAAM_PROJECT check (GEBRUIKERSNAAM >= '4'),
    AANGEMAAKTOP         DATE                 default sysdate  not null
@@ -251,8 +248,7 @@ create table TELEFOON (
 create table TELEFOON_VAN_BEDRIJF (
    TELEFOONNUMMER       VARCHAR2(20)          not null
       constraint CKC_TELEFOONNUMMER_TELEFOON check (TELEFOONNUMMER >= '8'),
-   KVKNUMMER            NUMBER(8,0)          default 8  not null
-      constraint CKC_KVKNUMMER_TELEFOON check (KVKNUMMER between 8 and 8),
+   KVKNUMMER            NUMBER(8,0)           not null,
    constraint PK_TELEFOON_VAN_BEDRIJF primary key (TELEFOONNUMMER, KVKNUMMER)
 );
 
@@ -277,8 +273,7 @@ create table VERGUNNING (
    VERGUNNINGSID        INTEGER               not null
       generated as identity ( start with 1 nocycle noorder),
    VERGUNNINGSNAAM      VARCHAR2(255)         not null,
-   STATUS               VARCHAR2(255)         not null
-      constraint CKC_STATUS_VERGUNNI2 check (STATUS in ('Aangevraagd','Afwewezen','Uitgegeven','Verlopen','Bezwaar')),
+   STATUS               VARCHAR2(255)         not null,
    PROJECTID            INTEGER               not null,
    OMSCHRIJVING         VARCHAR2(4000)        not null,
    DATUMAANVRAAG        DATE                  not null
@@ -337,8 +332,7 @@ create index TOEGEVOEGD_DOOR_FK on VERGUNNINGSINFORMATIE (
 /* Table: VERGUNNINGSTATUS                                      */
 /*==============================================================*/
 create table VERGUNNINGSTATUS (
-   STATUS               VARCHAR2(255)         not null
-      constraint CKC_STATUS_VERGUNNI check (STATUS in ('Aangevraagd','Afwewezen','Uitgegeven','Verlopen','Bezwaar')),
+   STATUS               VARCHAR2(255)         not null,
    constraint PK_VERGUNNINGSTATUS primary key (STATUS)
 );
 
@@ -356,8 +350,7 @@ create table VERGUNNINGSTYPE (
 create table WERKNEMER (
    GEBRUIKERSNAAM       VARCHAR2(255)         not null
       constraint CKC_GEBRUIKERSNAAM_WERKNEME check (GEBRUIKERSNAAM >= '4'),
-   KVKNUMMER            NUMBER(8,0)          default 8  not null
-      constraint CKC_KVKNUMMER_WERKNEME check (KVKNUMMER between 8 and 8),
+   KVKNUMMER            NUMBER(8,0)           not null,
    TYPE                 VARCHAR2(255),
    constraint PK_WERKNEMER primary key (GEBRUIKERSNAAM, KVKNUMMER)
 );
