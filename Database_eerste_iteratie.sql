@@ -1,20 +1,14 @@
 /*==============================================================*/
 /* DBMS name:      ORACLE Version 12c                           */
-/* Created on:     2017-05-09 13:52:29                          */
+/* Created on:     2017-05-09 15:45:54                          */
 /*==============================================================*/
 
 
 alter table BEDRIJF
    drop constraint FK_BEDRIJF_ADRES_VAN_ADRESGEG;
 
-alter table BESTAND
-   drop constraint FK_BESTAND_VERGUNNIN_VERGUNNI;
-
 alter table PROJECT
    drop constraint FK_PROJECT_AUTEUR_VA_GEBRUIKE;
-
-alter table PROJECT
-   drop constraint FK_PROJECT_LOCATIE_V_ADRESGEG;
 
 alter table VERGUNNING
    drop constraint FK_VERGUNNI_STATUS_VA_VERGUNNI;
@@ -30,9 +24,6 @@ alter table VERGUNNINGSINFORMATIE
 
 alter table VERGUNNINGSINFORMATIE
    drop constraint FK_VERGUNNI_TOEGEVOEG_GEBRUIKE;
-
-alter table VERGUNNINGSINFORMATIE
-   drop constraint FK_VERGUNNI_VERGUNNIN_BESTAND;
 
 alter table WERKNEMER
    drop constraint FK_WERKNEME_FUNCTIE_V_ROL;
@@ -55,10 +46,6 @@ drop index ADRES_VAN_BEDRIJF_FK;
 
 drop table BEDRIJF cascade constraints;
 
-drop index VERGUNNINGSBESTAND_FK;
-
-drop table BESTAND cascade constraints;
-
 drop table GEBRUIKER cascade constraints;
 
 drop index GEBRUIKERTEL2_FK;
@@ -68,8 +55,6 @@ drop index GEBRUIKERTEL_FK;
 drop table GEBRUIKERTEL cascade constraints;
 
 drop index PROJECT_GESTART_DOOR_FK;
-
-drop index LOCATIE_VAN_PROJECT_FK;
 
 drop index AUTEUR_VAN_PROJECT_FK;
 
@@ -95,8 +80,6 @@ drop table VERGUNNING cascade constraints;
 
 drop index TOEGEVOEGD_DOOR_FK;
 
-drop index VERGUNNINGSBESTAND2_FK;
-
 drop table VERGUNNINGSINFORMATIE cascade constraints;
 
 drop table VERGUNNINGSTATUS cascade constraints;
@@ -120,12 +103,11 @@ create table ADRESGEGEVENS (
    ADRESID              INTEGER               not null
       generated as identity ( start with 1 nocycle noorder),
    POSTCODE             VARCHAR2(6)           not null,
-   HUISNUMMER           INTEGER               not null,
-   TOEVOEGING           CHAR(1),
-   GEOCOORDINAAT        VARCHAR2(30)          not null,
+   HUISNUMMER           NUMBER(5,0)           not null
+      constraint CKC_HUISNUMMER_ADRESGEG check (HUISNUMMER between 00000001 and 99999999),
+   TOEVOEGING           VARCHAR2(5),
    constraint PK_ADRESGEGEVENS primary key (ADRESID),
-   constraint AK_IDENTIFIER_2_ADRESGEG unique (POSTCODE, HUISNUMMER, TOEVOEGING),
-   constraint AK_IDENTIFIER_3_ADRESGEG unique (GEOCOORDINAAT)
+   constraint AK_IDENTIFIER_2_ADRESGEG unique (POSTCODE, HUISNUMMER, TOEVOEGING)
 );
 
 /*==============================================================*/
@@ -133,7 +115,8 @@ create table ADRESGEGEVENS (
 /*==============================================================*/
 create table ADRES_VAN_GEBRUIKER (
    ADRESID              INTEGER               not null,
-   GEBRUIKERSNAAM       VARCHAR2(255)         not null,
+   GEBRUIKERSNAAM       VARCHAR2(255)         not null
+      constraint CKC_GEBRUIKERSNAAM_ADRES_VA check (GEBRUIKERSNAAM >= '4'),
    constraint PK_ADRES_VAN_GEBRUIKER primary key (ADRESID, GEBRUIKERSNAAM)
 );
 
@@ -155,7 +138,8 @@ create index ADRES_VAN_GEBRUIKER2_FK on ADRES_VAN_GEBRUIKER (
 /* Table: BEDRIJF                                               */
 /*==============================================================*/
 create table BEDRIJF (
-   KVKNUMMER            INTEGER               not null,
+   KVKNUMMER            NUMBER(8,0)          default 8  not null
+      constraint CKC_KVKNUMMER_BEDRIJF check (KVKNUMMER between 8 and 8),
    ADRESID              INTEGER               not null,
    BEDRIJFSNAAM         VARCHAR2(255)         not null,
    BEDRIJFSWACHTWOORD   VARCHAR2(255)         not null,
@@ -170,35 +154,19 @@ create index ADRES_VAN_BEDRIJF_FK on BEDRIJF (
 );
 
 /*==============================================================*/
-/* Table: BESTAND                                               */
-/*==============================================================*/
-create table BESTAND (
-   LOCATIE              VARCHAR2(255)         not null,
-   VERGUNNINGSID        INTEGER               not null,
-   VOLGNUMMER           INTEGER               not null,
-   constraint PK_BESTAND primary key (LOCATIE, VERGUNNINGSID, VOLGNUMMER)
-);
-
-/*==============================================================*/
-/* Index: VERGUNNINGSBESTAND_FK                                 */
-/*==============================================================*/
-create index VERGUNNINGSBESTAND_FK on BESTAND (
-   VERGUNNINGSID ASC,
-   VOLGNUMMER ASC
-);
-
-/*==============================================================*/
 /* Table: GEBRUIKER                                             */
 /*==============================================================*/
 create table GEBRUIKER (
-   GEBRUIKERSNAAM       VARCHAR2(255)         not null,
+   GEBRUIKERSNAAM       VARCHAR2(255)         not null
+      constraint CKC_GEBRUIKERSNAAM_GEBRUIKE2 check (GEBRUIKERSNAAM >= '4'),
    WACHTWOORD           VARCHAR2(255)         not null,
-   VOORNAAM             VARCHAR2(255)         not null,
-   TUSSENVOEGSEL        VARCHAR2(15),
+   VOORNAAM             VARCHAR2(100)         not null,
+   TUSSENVOEGSEL        VARCHAR2(25),
    ACHTERNAAM           VARCHAR2(255)         not null,
-   GEBOORTEDATUM        DATE                  not null,
+   GEBOORTEDATUM        DATE                  not null
+      constraint CKC_GEBOORTEDATUM_GEBRUIKE check (GEBOORTEDATUM between '01-01-1900' and 'add_months(sysdate, - (18*12)'),
    GESLACHT             CHAR(1)               not null
-      constraint CKC_GESLACHT_GEBRUIKE check (GESLACHT in ('M','V')),
+      constraint CKC_GESLACHT_GEBRUIKE check (GESLACHT in ('M','V','O')),
    MAILADRES            VARCHAR2(255)         not null,
    constraint PK_GEBRUIKER primary key (GEBRUIKERSNAAM)
 );
@@ -207,8 +175,10 @@ create table GEBRUIKER (
 /* Table: GEBRUIKERTEL                                          */
 /*==============================================================*/
 create table GEBRUIKERTEL (
-   TELEFOONNUMMER       INTEGER               not null,
-   GEBRUIKERSNAAM       VARCHAR2(255)         not null,
+   TELEFOONNUMMER       VARCHAR2(20)          not null
+      constraint CKC_TELEFOONNUMMER_GEBRUIKE check (TELEFOONNUMMER >= '8'),
+   GEBRUIKERSNAAM       VARCHAR2(255)         not null
+      constraint CKC_GEBRUIKERSNAAM_GEBRUIKE check (GEBRUIKERSNAAM >= '4'),
    constraint PK_GEBRUIKERTEL primary key (TELEFOONNUMMER, GEBRUIKERSNAAM)
 );
 
@@ -232,11 +202,15 @@ create index GEBRUIKERTEL2_FK on GEBRUIKERTEL (
 create table PROJECT (
    PROJECTID            INTEGER               not null
       generated as identity ( start with 1 nocycle noorder),
-   KVKNUMMER            INTEGER,
-   ADRESID              INTEGER               not null,
-   GEBRUIKERSNAAM       VARCHAR2(255)         not null,
-   AANGEMAAKTOP         DATE                  not null,
-   WERKZAAMHEID         VARCHAR2(255)         not null,
+   KVKNUMMER            NUMBER(8,0)          default 8
+      constraint CKC_KVKNUMMER_PROJECT check (KVKNUMMER is null or (KVKNUMMER between 8 and 8)),
+   GEBRUIKERSNAAM       VARCHAR2(255)         not null
+      constraint CKC_GEBRUIKERSNAAM_PROJECT check (GEBRUIKERSNAAM >= '4'),
+   AANGEMAAKTOP         DATE                 default sysdate  not null
+      constraint CKC_AANGEMAAKTOP_PROJECT check (AANGEMAAKTOP >= '01-01-1900'),
+   WERKZAAMHEID         VARCHAR2(4000)        not null,
+   XCOORDINAAT          FLOAT                 not null,
+   YCOORDINAAT          FLOAT                 not null,
    constraint PK_PROJECT primary key (PROJECTID)
 );
 
@@ -245,13 +219,6 @@ create table PROJECT (
 /*==============================================================*/
 create index AUTEUR_VAN_PROJECT_FK on PROJECT (
    GEBRUIKERSNAAM ASC
-);
-
-/*==============================================================*/
-/* Index: LOCATIE_VAN_PROJECT_FK                                */
-/*==============================================================*/
-create index LOCATIE_VAN_PROJECT_FK on PROJECT (
-   ADRESID ASC
 );
 
 /*==============================================================*/
@@ -273,7 +240,8 @@ create table ROL (
 /* Table: TELEFOON                                              */
 /*==============================================================*/
 create table TELEFOON (
-   TELEFOONNUMMER       INTEGER               not null,
+   TELEFOONNUMMER       VARCHAR2(20)          not null
+      constraint CKC_TELEFOONNUMMER_TELEFOON2 check (TELEFOONNUMMER >= '8'),
    constraint PK_TELEFOON primary key (TELEFOONNUMMER)
 );
 
@@ -281,8 +249,10 @@ create table TELEFOON (
 /* Table: TELEFOON_VAN_BEDRIJF                                  */
 /*==============================================================*/
 create table TELEFOON_VAN_BEDRIJF (
-   TELEFOONNUMMER       INTEGER               not null,
-   KVKNUMMER            INTEGER               not null,
+   TELEFOONNUMMER       VARCHAR2(20)          not null
+      constraint CKC_TELEFOONNUMMER_TELEFOON check (TELEFOONNUMMER >= '8'),
+   KVKNUMMER            NUMBER(8,0)          default 8  not null
+      constraint CKC_KVKNUMMER_TELEFOON check (KVKNUMMER between 8 and 8),
    constraint PK_TELEFOON_VAN_BEDRIJF primary key (TELEFOONNUMMER, KVKNUMMER)
 );
 
@@ -307,12 +277,16 @@ create table VERGUNNING (
    VERGUNNINGSID        INTEGER               not null
       generated as identity ( start with 1 nocycle noorder),
    VERGUNNINGSNAAM      VARCHAR2(255)         not null,
-   STATUS               VARCHAR2(255)         not null,
+   STATUS               VARCHAR2(255)         not null
+      constraint CKC_STATUS_VERGUNNI2 check (STATUS in ('Aangevraagd','Afwewezen','Uitgegeven','Verlopen','Bezwaar')),
    PROJECTID            INTEGER               not null,
-   OMSCHRIJVING         VARCHAR2(255)         not null,
-   DATUMAANVRAAG        DATE                  not null,
-   DATUMUITGAVE         DATE,
-   DATUMVERLOOP         DATE,
+   OMSCHRIJVING         VARCHAR2(4000)        not null,
+   DATUMAANVRAAG        DATE                  not null
+      constraint CKC_DATUMAANVRAAG_VERGUNNI check (DATUMAANVRAAG >= '01-01-1900'),
+   DATUMUITGAVE         DATE                
+      constraint CKC_DATUMUITGAVE_VERGUNNI check (DATUMUITGAVE is null or (DATUMUITGAVE >= '01-01-1900')),
+   DATUMVERLOOP         DATE                
+      constraint CKC_DATUMVERLOOP_VERGUNNI check (DATUMVERLOOP is null or (DATUMVERLOOP >= '01-01-1990')),
    constraint PK_VERGUNNING primary key (VERGUNNINGSID)
 );
 
@@ -343,21 +317,13 @@ create index VERGUNNING_VAN_PROJECT_FK on VERGUNNING (
 create table VERGUNNINGSINFORMATIE (
    VERGUNNINGSID        INTEGER               not null,
    VOLGNUMMER           INTEGER               not null,
-   GEBRUIKERSNAAM       VARCHAR2(255)         not null,
+   GEBRUIKERSNAAM       VARCHAR2(255)         not null
+      constraint CKC_GEBRUIKERSNAAM_VERGUNNI check (GEBRUIKERSNAAM >= '4'),
+   UITLEG               VARCHAR2(4000)        not null,
+   DATUM                DATE                 default sysdate  not null
+      constraint CKC_DATUM_VERGUNNI check (DATUM >= '01-01-1900'),
    LOCATIE              VARCHAR2(255),
-   BES_VERGUNNINGSID    INTEGER,
-   UITLEG               VARCHAR2(255)         not null,
-   DATUM                DATE                  not null,
    constraint PK_VERGUNNINGSINFORMATIE primary key (VERGUNNINGSID, VOLGNUMMER)
-);
-
-/*==============================================================*/
-/* Index: VERGUNNINGSBESTAND2_FK                                */
-/*==============================================================*/
-create index VERGUNNINGSBESTAND2_FK on VERGUNNINGSINFORMATIE (
-   LOCATIE ASC,
-   BES_VERGUNNINGSID ASC,
-   VOLGNUMMER ASC
 );
 
 /*==============================================================*/
@@ -371,7 +337,8 @@ create index TOEGEVOEGD_DOOR_FK on VERGUNNINGSINFORMATIE (
 /* Table: VERGUNNINGSTATUS                                      */
 /*==============================================================*/
 create table VERGUNNINGSTATUS (
-   STATUS               VARCHAR2(255)         not null,
+   STATUS               VARCHAR2(255)         not null
+      constraint CKC_STATUS_VERGUNNI check (STATUS in ('Aangevraagd','Afwewezen','Uitgegeven','Verlopen','Bezwaar')),
    constraint PK_VERGUNNINGSTATUS primary key (STATUS)
 );
 
@@ -387,8 +354,10 @@ create table VERGUNNINGSTYPE (
 /* Table: WERKNEMER                                             */
 /*==============================================================*/
 create table WERKNEMER (
-   GEBRUIKERSNAAM       VARCHAR2(255)         not null,
-   KVKNUMMER            INTEGER               not null,
+   GEBRUIKERSNAAM       VARCHAR2(255)         not null
+      constraint CKC_GEBRUIKERSNAAM_WERKNEME check (GEBRUIKERSNAAM >= '4'),
+   KVKNUMMER            NUMBER(8,0)          default 8  not null
+      constraint CKC_KVKNUMMER_WERKNEME check (KVKNUMMER between 8 and 8),
    TYPE                 VARCHAR2(255),
    constraint PK_WERKNEMER primary key (GEBRUIKERSNAAM, KVKNUMMER)
 );
@@ -404,17 +373,9 @@ alter table BEDRIJF
    add constraint FK_BEDRIJF_ADRES_VAN_ADRESGEG foreign key (ADRESID)
       references ADRESGEGEVENS (ADRESID);
 
-alter table BESTAND
-   add constraint FK_BESTAND_VERGUNNIN_VERGUNNI foreign key (VERGUNNINGSID, VOLGNUMMER)
-      references VERGUNNINGSINFORMATIE (VERGUNNINGSID, VOLGNUMMER);
-
 alter table PROJECT
    add constraint FK_PROJECT_AUTEUR_VA_GEBRUIKE foreign key (GEBRUIKERSNAAM)
       references GEBRUIKER (GEBRUIKERSNAAM);
-
-alter table PROJECT
-   add constraint FK_PROJECT_LOCATIE_V_ADRESGEG foreign key (ADRESID)
-      references ADRESGEGEVENS (ADRESID);
 
 alter table VERGUNNING
    add constraint FK_VERGUNNI_STATUS_VA_VERGUNNI foreign key (STATUS)
@@ -435,10 +396,6 @@ alter table VERGUNNINGSINFORMATIE
 alter table VERGUNNINGSINFORMATIE
    add constraint FK_VERGUNNI_TOEGEVOEG_GEBRUIKE foreign key (GEBRUIKERSNAAM)
       references GEBRUIKER (GEBRUIKERSNAAM);
-
-alter table VERGUNNINGSINFORMATIE
-   add constraint FK_VERGUNNI_VERGUNNIN_BESTAND foreign key (LOCATIE, BES_VERGUNNINGSID, VOLGNUMMER)
-      references BESTAND (LOCATIE, VERGUNNINGSID, VOLGNUMMER);
 
 alter table WERKNEMER
    add constraint FK_WERKNEME_FUNCTIE_V_ROL foreign key (TYPE)
