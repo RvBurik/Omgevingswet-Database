@@ -1,32 +1,20 @@
 /*==============================================================*/
 /* DBMS name:      ORACLE Version 12c                           */
-/* Created on:     2017-05-08 13:15:03                          */
+/* Created on:     2017-05-09 13:52:29                          */
 /*==============================================================*/
 
 
 alter table BEDRIJF
    drop constraint FK_BEDRIJF_ADRES_VAN_ADRESGEG;
 
-alter table BEDRIJF
-   drop constraint FK_BEDRIJF_TELEFOON__TELEFOON;
-
 alter table BESTAND
    drop constraint FK_BESTAND_VERGUNNIN_VERGUNNI;
-
-alter table GEBRUIKER
-   drop constraint FK_GEBRUIKE_ADRES_VAN_ADRESGEG;
 
 alter table PROJECT
    drop constraint FK_PROJECT_AUTEUR_VA_GEBRUIKE;
 
 alter table PROJECT
    drop constraint FK_PROJECT_LOCATIE_V_ADRESGEG;
-
-alter table TELEFOON
-   drop constraint FK_TELEFOON_GEBRUIKER_GEBRUIKE;
-
-alter table TELEFOON
-   drop constraint FK_TELEFOON_TELEFOON__BEDRIJF;
 
 alter table VERGUNNING
    drop constraint FK_VERGUNNI_STATUS_VA_VERGUNNI;
@@ -57,7 +45,11 @@ alter table WERKNEMER
 
 drop table ADRESGEGEVENS cascade constraints;
 
-drop index TELEFOON_VAN_BEDRIJF2_FK;
+drop index ADRES_VAN_GEBRUIKER2_FK;
+
+drop index ADRES_VAN_GEBRUIKER_FK;
+
+drop table ADRES_VAN_GEBRUIKER cascade constraints;
 
 drop index ADRES_VAN_BEDRIJF_FK;
 
@@ -67,11 +59,15 @@ drop index VERGUNNINGSBESTAND_FK;
 
 drop table BESTAND cascade constraints;
 
-drop index FUNCTIE_VAN_GEBRUIKER_FK;
-
-drop index ADRES_VAN_GEBRUIKER_FK;
-
 drop table GEBRUIKER cascade constraints;
+
+drop index GEBRUIKERTEL2_FK;
+
+drop index GEBRUIKERTEL_FK;
+
+drop table GEBRUIKERTEL cascade constraints;
+
+drop index PROJECT_GESTART_DOOR_FK;
 
 drop index LOCATIE_VAN_PROJECT_FK;
 
@@ -81,11 +77,13 @@ drop table PROJECT cascade constraints;
 
 drop table ROL cascade constraints;
 
+drop table TELEFOON cascade constraints;
+
+drop index TELEFOON_VAN_BEDRIJF2_FK;
+
 drop index TELEFOON_VAN_BEDRIJF_FK;
 
-drop index GEBRUIKERTEL_FK;
-
-drop table TELEFOON cascade constraints;
+drop table TELEFOON_VAN_BEDRIJF cascade constraints;
 
 drop index VERGUNNING_VAN_PROJECT_FK;
 
@@ -124,8 +122,33 @@ create table ADRESGEGEVENS (
    POSTCODE             VARCHAR2(6)           not null,
    HUISNUMMER           INTEGER               not null,
    TOEVOEGING           CHAR(1),
+   GEOCOORDINAAT        VARCHAR2(30)          not null,
    constraint PK_ADRESGEGEVENS primary key (ADRESID),
-   constraint AK_IDENTIFIER_2_ADRESGEG unique (POSTCODE, HUISNUMMER, TOEVOEGING)
+   constraint AK_IDENTIFIER_2_ADRESGEG unique (POSTCODE, HUISNUMMER, TOEVOEGING),
+   constraint AK_IDENTIFIER_3_ADRESGEG unique (GEOCOORDINAAT)
+);
+
+/*==============================================================*/
+/* Table: ADRES_VAN_GEBRUIKER                                   */
+/*==============================================================*/
+create table ADRES_VAN_GEBRUIKER (
+   ADRESID              INTEGER               not null,
+   GEBRUIKERSNAAM       VARCHAR2(255)         not null,
+   constraint PK_ADRES_VAN_GEBRUIKER primary key (ADRESID, GEBRUIKERSNAAM)
+);
+
+/*==============================================================*/
+/* Index: ADRES_VAN_GEBRUIKER_FK                                */
+/*==============================================================*/
+create index ADRES_VAN_GEBRUIKER_FK on ADRES_VAN_GEBRUIKER (
+   ADRESID ASC
+);
+
+/*==============================================================*/
+/* Index: ADRES_VAN_GEBRUIKER2_FK                               */
+/*==============================================================*/
+create index ADRES_VAN_GEBRUIKER2_FK on ADRES_VAN_GEBRUIKER (
+   GEBRUIKERSNAAM ASC
 );
 
 /*==============================================================*/
@@ -134,7 +157,6 @@ create table ADRESGEGEVENS (
 create table BEDRIJF (
    KVKNUMMER            INTEGER               not null,
    ADRESID              INTEGER               not null,
-   TELEFOONNUMMER       INTEGER               not null,
    BEDRIJFSNAAM         VARCHAR2(255)         not null,
    BEDRIJFSWACHTWOORD   VARCHAR2(255)         not null,
    constraint PK_BEDRIJF primary key (KVKNUMMER)
@@ -145,13 +167,6 @@ create table BEDRIJF (
 /*==============================================================*/
 create index ADRES_VAN_BEDRIJF_FK on BEDRIJF (
    ADRESID ASC
-);
-
-/*==============================================================*/
-/* Index: TELEFOON_VAN_BEDRIJF2_FK                              */
-/*==============================================================*/
-create index TELEFOON_VAN_BEDRIJF2_FK on BEDRIJF (
-   TELEFOONNUMMER ASC
 );
 
 /*==============================================================*/
@@ -177,7 +192,6 @@ create index VERGUNNINGSBESTAND_FK on BESTAND (
 /*==============================================================*/
 create table GEBRUIKER (
    GEBRUIKERSNAAM       VARCHAR2(255)         not null,
-   ADRESID              INTEGER               not null,
    WACHTWOORD           VARCHAR2(255)         not null,
    VOORNAAM             VARCHAR2(255)         not null,
    TUSSENVOEGSEL        VARCHAR2(15),
@@ -190,17 +204,26 @@ create table GEBRUIKER (
 );
 
 /*==============================================================*/
-/* Index: ADRES_VAN_GEBRUIKER_FK                                */
+/* Table: GEBRUIKERTEL                                          */
 /*==============================================================*/
-create index ADRES_VAN_GEBRUIKER_FK on GEBRUIKER (
-   ADRESID ASC
+create table GEBRUIKERTEL (
+   TELEFOONNUMMER       INTEGER               not null,
+   GEBRUIKERSNAAM       VARCHAR2(255)         not null,
+   constraint PK_GEBRUIKERTEL primary key (TELEFOONNUMMER, GEBRUIKERSNAAM)
 );
 
 /*==============================================================*/
-/* Index: FUNCTIE_VAN_GEBRUIKER_FK                              */
+/* Index: GEBRUIKERTEL_FK                                       */
 /*==============================================================*/
-create index FUNCTIE_VAN_GEBRUIKER_FK on GEBRUIKER (
-   TYPE ASC
+create index GEBRUIKERTEL_FK on GEBRUIKERTEL (
+   TELEFOONNUMMER ASC
+);
+
+/*==============================================================*/
+/* Index: GEBRUIKERTEL2_FK                                      */
+/*==============================================================*/
+create index GEBRUIKERTEL2_FK on GEBRUIKERTEL (
+   GEBRUIKERSNAAM ASC
 );
 
 /*==============================================================*/
@@ -209,10 +232,11 @@ create index FUNCTIE_VAN_GEBRUIKER_FK on GEBRUIKER (
 create table PROJECT (
    PROJECTID            INTEGER               not null
       generated as identity ( start with 1 nocycle noorder),
+   KVKNUMMER            INTEGER,
    ADRESID              INTEGER               not null,
    GEBRUIKERSNAAM       VARCHAR2(255)         not null,
-   AANGEMAAKTOP         DATE,
-   WERKZAAMHEID         VARCHAR2(255),
+   AANGEMAAKTOP         DATE                  not null,
+   WERKZAAMHEID         VARCHAR2(255)         not null,
    constraint PK_PROJECT primary key (PROJECTID)
 );
 
@@ -231,6 +255,13 @@ create index LOCATIE_VAN_PROJECT_FK on PROJECT (
 );
 
 /*==============================================================*/
+/* Index: PROJECT_GESTART_DOOR_FK                               */
+/*==============================================================*/
+create index PROJECT_GESTART_DOOR_FK on PROJECT (
+   KVKNUMMER ASC
+);
+
+/*==============================================================*/
 /* Table: ROL                                                   */
 /*==============================================================*/
 create table ROL (
@@ -243,22 +274,29 @@ create table ROL (
 /*==============================================================*/
 create table TELEFOON (
    TELEFOONNUMMER       INTEGER               not null,
-   GEBRUIKERSNAAM       VARCHAR2(255),
-   KVKNUMMER            INTEGER,
    constraint PK_TELEFOON primary key (TELEFOONNUMMER)
 );
 
 /*==============================================================*/
-/* Index: GEBRUIKERTEL_FK                                       */
+/* Table: TELEFOON_VAN_BEDRIJF                                  */
 /*==============================================================*/
-create index GEBRUIKERTEL_FK on TELEFOON (
-   GEBRUIKERSNAAM ASC
+create table TELEFOON_VAN_BEDRIJF (
+   TELEFOONNUMMER       INTEGER               not null,
+   KVKNUMMER            INTEGER               not null,
+   constraint PK_TELEFOON_VAN_BEDRIJF primary key (TELEFOONNUMMER, KVKNUMMER)
 );
 
 /*==============================================================*/
 /* Index: TELEFOON_VAN_BEDRIJF_FK                               */
 /*==============================================================*/
-create index TELEFOON_VAN_BEDRIJF_FK on TELEFOON (
+create index TELEFOON_VAN_BEDRIJF_FK on TELEFOON_VAN_BEDRIJF (
+   TELEFOONNUMMER ASC
+);
+
+/*==============================================================*/
+/* Index: TELEFOON_VAN_BEDRIJF2_FK                              */
+/*==============================================================*/
+create index TELEFOON_VAN_BEDRIJF2_FK on TELEFOON_VAN_BEDRIJF (
    KVKNUMMER ASC
 );
 
@@ -366,17 +404,9 @@ alter table BEDRIJF
    add constraint FK_BEDRIJF_ADRES_VAN_ADRESGEG foreign key (ADRESID)
       references ADRESGEGEVENS (ADRESID);
 
-alter table BEDRIJF
-   add constraint FK_BEDRIJF_TELEFOON__TELEFOON foreign key (TELEFOONNUMMER)
-      references TELEFOON (TELEFOONNUMMER);
-
 alter table BESTAND
    add constraint FK_BESTAND_VERGUNNIN_VERGUNNI foreign key (VERGUNNINGSID, VOLGNUMMER)
       references VERGUNNINGSINFORMATIE (VERGUNNINGSID, VOLGNUMMER);
-
-alter table GEBRUIKER
-   add constraint FK_GEBRUIKE_ADRES_VAN_ADRESGEG foreign key (ADRESID)
-      references ADRESGEGEVENS (ADRESID);
 
 alter table PROJECT
    add constraint FK_PROJECT_AUTEUR_VA_GEBRUIKE foreign key (GEBRUIKERSNAAM)
@@ -385,14 +415,6 @@ alter table PROJECT
 alter table PROJECT
    add constraint FK_PROJECT_LOCATIE_V_ADRESGEG foreign key (ADRESID)
       references ADRESGEGEVENS (ADRESID);
-
-alter table TELEFOON
-   add constraint FK_TELEFOON_GEBRUIKER_GEBRUIKE foreign key (GEBRUIKERSNAAM)
-      references GEBRUIKER (GEBRUIKERSNAAM);
-
-alter table TELEFOON
-   add constraint FK_TELEFOON_TELEFOON__BEDRIJF foreign key (KVKNUMMER)
-      references BEDRIJF (KVKNUMMER);
 
 alter table VERGUNNING
    add constraint FK_VERGUNNI_STATUS_VA_VERGUNNI foreign key (STATUS)
