@@ -9,25 +9,23 @@ values ('6951BH', 13);
 
 -- succes
 insert into GEBRUIKER (GEBRUIKERSNAAM, WACHTWOORD, VOORNAAM, ACHTERNAAM, GEBOORTEDATUM, GESLACHT, MAILADRES)
-values ('dncn', 'wachtwoord', 'Duncan', 'Luiten', to_date('03/10/1994', 'DD/MM/YYYY'), 'M', 'lyraeduncan@hotmail.com');
+values ('dncn', 'wachtwoord', 'Duncan', 'Luiten', '1994-10-03', 'M', 'lyraeduncan@hotmail.com');
 
 -- faalt vanwege ongeldige geboortedatum (te oud)
 insert into GEBRUIKER (GEBRUIKERSNAAM, WACHTWOORD, VOORNAAM, ACHTERNAAM, GEBOORTEDATUM, GESLACHT, MAILADRES)
-values ('test', 'wachtwoord', 'test', 'failed', to_date('03/10/1894', 'DD/MM/YYYY'), 'M', 'test@test.com');
+values ('test', 'wachtwoord', 'test', 'failed', '1894-10-03', 'M', 'test@test.com');
 
 -- faalt vanwege ongeldig geslacht
 insert into GEBRUIKER (GEBRUIKERSNAAM, WACHTWOORD, VOORNAAM, ACHTERNAAM, GEBOORTEDATUM, GESLACHT, MAILADRES)
-values ('test', 'wachtwoord', 'test', 'failed', to_date('03/10/1994', 'DD/MM/YYYY'), 'A', 'test@test.com');
+values ('test', 'wachtwoord', 'test', 'failed', '1994-10-03', 'A', 'test@test.com');
 
 -- faalt vanwege ongeldige geb.datum (te jong) -- gaat nog fout, constraint nog niet af
-/*
 insert into GEBRUIKER (GEBRUIKERSNAAM, WACHTWOORD, VOORNAAM, ACHTERNAAM, GEBOORTEDATUM, GESLACHT, MAILADRES)
-values ('test', 'wachtwoord', 'test', 'failed', to_date('03/10/2004', 'DD/MM/YYYY'), 'M', 'test@test.com');
-*/
+values ('test', 'wachtwoord', 'test', 'failed', '2004-10-03', 'M', 'test@test.com');
 
 -- faalt vanwege ongeldige geb.naam (te kort)
 insert into GEBRUIKER (GEBRUIKERSNAAM, WACHTWOORD, VOORNAAM, ACHTERNAAM, GEBOORTEDATUM, GESLACHT, MAILADRES)
-values ('te', 'wachtwoord', 'test', 'failed', to_date('03/10/1994', 'DD/MM/YYYY'), 'M', 'test@test.com');
+values ('te', 'wachtwoord', 'test', 'failed', '1994-10-03', 'M', 'test@test.com');
 
 -- select * from adresgegevens where postcode = '6951BH' and huisnummer = 13
 -- succes
@@ -81,24 +79,24 @@ values ('dncn', 12345678, 'CEO');
 
 -- succes
 insert into VERGUNNINGSTATUS (STATUS)
-values ('In behandeling');
+values ('Aangevraagd');
 
 -- succes
 insert into VERGUNNINGSTYPE (VERGUNNINGSNAAM)
 values ('Evenementenvergunning');
 
 -- succes
-insert into PROJECT (KVKNUMMER, GEBRUIKERSNAAM, WERKZAAMHEID, XCOORDINAAT, YCOORDINAAT)
-values (12345678, 'dncn', 'Dit is een testwerkzaamheid.', 12.15468, 12.6875213);
+insert into PROJECT (KVKNUMMER, GEBRUIKERSNAAM, AANGEMAAKTOP, WERKZAAMHEID, XCOORDINAAT, YCOORDINAAT)
+values (12345678, 'dncn', getdate(), 'Dit is een testwerkzaamheid.', 12.15468, 12.6875213);
 
 -- select * from project
 -- succes
-insert into VERGUNNINGSINFORMATIE (PROJECTID, VOLGNUMMER, GEBRUIKERSNAAM, UITLEG, LOCATIE)
-values (1, 1, 'dncn', 'Dit bestand is aangemaakt om de software te testen.', 'C:\TEST');
+insert into VERGUNNINGSINFORMATIE (PROJECTID, VOLGNUMMER, GEBRUIKERSNAAM, UITLEG, DATUM, LOCATIE)
+values (1, 1, 'dncn', 'Dit bestand is aangemaakt om de software te testen.', getdate(), 'C:\TEST');
 
 -- succes
 insert into VERGUNNING (VERGUNNINGSNAAM, STATUS, PROJECTID, OMSCHRIJVING, DATUMAANVRAAG)
-values ('Evenementenvergunning', 'In behandeling', 1, 'Vergunningsomschrijving.', sysdate);
+values ('Evenementenvergunning', 'Aangevraagd', 1, 'Vergunningsomschrijving.', getdate());
 
 
 
