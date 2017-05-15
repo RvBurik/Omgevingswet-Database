@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      Microsoft SQL Server 2012                    */
-/* Created on:     2017-05-12 13:29:43                          */
+/* Created on:     2017-05-15 11:14:32                          */
 /*==============================================================*/
 
 
@@ -9,6 +9,20 @@ if exists (select 1
    where r.fkeyid = object_id('BEDRIJF') and o.name = 'FK_BEDRIJF_ADRES_VAN_ADRESGEG')
 alter table BEDRIJF
    drop constraint FK_BEDRIJF_ADRES_VAN_ADRESGEG
+go
+
+if exists (select 1
+   from sys.sysreferences r join sys.sysobjects o on (o.id = r.constid and o.type = 'F')
+   where r.fkeyid = object_id('BEZWAAR') and o.name = 'FK_BEZWAAR_BEZWAAR_D_GEBRUIKE')
+alter table BEZWAAR
+   drop constraint FK_BEZWAAR_BEZWAAR_D_GEBRUIKE
+go
+
+if exists (select 1
+   from sys.sysreferences r join sys.sysobjects o on (o.id = r.constid and o.type = 'F')
+   where r.fkeyid = object_id('BEZWAAR') and o.name = 'FK_BEZWAAR_BEZWAAR_O_VERGUNNI')
+alter table BEZWAAR
+   drop constraint FK_BEZWAAR_BEZWAAR_O_VERGUNNI
 go
 
 if exists (select 1
@@ -120,6 +134,31 @@ if exists (select 1
            where  id = object_id('BEDRIJF')
             and   type = 'U')
    drop table BEDRIJF
+go
+
+if exists (select 1
+            from  sysindexes
+           where  id    = object_id('BEZWAAR')
+            and   name  = 'BEZWAAR_OP_VERGUNNING_FK'
+            and   indid > 0
+            and   indid < 255)
+   drop index BEZWAAR.BEZWAAR_OP_VERGUNNING_FK
+go
+
+if exists (select 1
+            from  sysindexes
+           where  id    = object_id('BEZWAAR')
+            and   name  = 'BEZWAAR_DOOR_GEBRUIKER_FK'
+            and   indid > 0
+            and   indid < 255)
+   drop index BEZWAAR.BEZWAAR_DOOR_GEBRUIKER_FK
+go
+
+if exists (select 1
+            from  sysobjects
+           where  id = object_id('BEZWAAR')
+            and   type = 'U')
+   drop table BEZWAAR
 go
 
 if exists (select 1
@@ -322,8 +361,20 @@ if exists(select 1 from systypes where name='BEDRIJFSWACHTWOORD')
    drop type BEDRIJFSWACHTWOORD
 go
 
+if exists(select 1 from systypes where name='BESLUITREDEN')
+   drop type BESLUITREDEN
+go
+
 if exists(select 1 from systypes where name='BESTANDSLOCATIE')
    drop type BESTANDSLOCATIE
+go
+
+if exists(select 1 from systypes where name='BEZWAARBESLUIT')
+   drop type BEZWAARBESLUIT
+go
+
+if exists(select 1 from systypes where name='BEZWAARREDEN')
+   drop type BEZWAARREDEN
 go
 
 if exists(select 1 from systypes where name='COORDINAAT')
@@ -462,20 +513,6 @@ if exists(select 1 from systypes where name='WERKZAAMHEID')
    drop type WERKZAAMHEID
 go
 
-if exists (select 1
-   from  sysobjects where type = 'D'
-   and name = 'D_AANGEMAAKTOP'
-   )
-   drop default D_AANGEMAAKTOP
-go
-
-if exists (select 1
-   from  sysobjects where type = 'D'
-   and name = 'D_DATUMINFORMATIETOEGEVOEGD'
-   )
-   drop default D_DATUMINFORMATIETOEGEVOEGD
-go
-
 if exists (select 1 from sysobjects where id=object_id('R_AANGEMAAKTOP') and type='R')
    drop rule  R_AANGEMAAKTOP
 go
@@ -549,20 +586,6 @@ create rule R_TELEFOONNUMMER as
 go
 
 /*==============================================================*/
-/* Default: D_AANGEMAAKTOP                                      */
-/*==============================================================*/
-create default D_AANGEMAAKTOP
-    as 'sysdate'
-go
-
-/*==============================================================*/
-/* Default: D_DATUMINFORMATIETOEGEVOEGD                         */
-/*==============================================================*/
-create default D_DATUMINFORMATIETOEGEVOEGD
-    as 'sysdate'
-go
-
-/*==============================================================*/
 /* Domain: AANGEMAAKTOP                                         */
 /*==============================================================*/
 create type AANGEMAAKTOP
@@ -570,9 +593,6 @@ create type AANGEMAAKTOP
 go
 
 execute sp_bindrule R_AANGEMAAKTOP, AANGEMAAKTOP
-go
-
-execute sp_bindefault D_AANGEMAAKTOP, 'AANGEMAAKTOP'
 go
 
 /*==============================================================*/
@@ -604,10 +624,31 @@ create type BEDRIJFSWACHTWOORD
 go
 
 /*==============================================================*/
+/* Domain: BESLUITREDEN                                         */
+/*==============================================================*/
+create type BESLUITREDEN
+   from varchar(4000)
+go
+
+/*==============================================================*/
 /* Domain: BESTANDSLOCATIE                                      */
 /*==============================================================*/
 create type BESTANDSLOCATIE
    from varchar(255)
+go
+
+/*==============================================================*/
+/* Domain: BEZWAARBESLUIT                                       */
+/*==============================================================*/
+create type BEZWAARBESLUIT
+   from varchar(30)
+go
+
+/*==============================================================*/
+/* Domain: BEZWAARREDEN                                         */
+/*==============================================================*/
+create type BEZWAARREDEN
+   from varchar(4000)
 go
 
 /*==============================================================*/
@@ -635,9 +676,6 @@ create type DATUMINFORMATIETOEGEVOEGD
 go
 
 execute sp_bindrule R_DATUMINFORMATIETOEGEVOEGD, DATUMINFORMATIETOEGEVOEGD
-go
-
-execute sp_bindefault D_DATUMINFORMATIETOEGEVOEGD, 'DATUMINFORMATIETOEGEVOEGD'
 go
 
 /*==============================================================*/
@@ -825,8 +863,7 @@ go
 create table ADRESGEGEVENS (
    ADRESID              int                  identity,
    POSTCODE             varchar(6)           not null,
-   HUISNUMMER           numeric(5,0)         not null 
-      constraint CKC_HUISNUMMER_ADRESGEG check (HUISNUMMER between 00000001 and 99999999),
+   HUISNUMMER           numeric(5,0)         not null,
    TOEVOEGING           varchar(5)           null,
    constraint PK_ADRESGEGEVENS primary key (ADRESID),
    constraint AK_IDENTIFIER_2_ADRESGEG unique (POSTCODE, HUISNUMMER, TOEVOEGING)
@@ -838,8 +875,7 @@ go
 /*==============================================================*/
 create table ADRES_VAN_GEBRUIKER (
    ADRESID              int                  not null,
-   GEBRUIKERSNAAM       varchar(255)         not null 
-      constraint CKC_GEBRUIKERSNAAM_ADRES_VA check (len(GEBRUIKERSNAAM) >= '4'),
+   GEBRUIKERSNAAM       varchar(255)         not null,
    constraint PK_ADRES_VAN_GEBRUIKER primary key (ADRESID, GEBRUIKERSNAAM)
 )
 go
@@ -868,8 +904,7 @@ go
 /* Table: BEDRIJF                                               */
 /*==============================================================*/
 create table BEDRIJF (
-   KVKNUMMER            numeric(8,0)         not null
-      constraint CKC_KVKNUMMER_BEDRIJF check (len(KVKNUMMER) = 8),
+   KVKNUMMER            numeric(8,0)         not null,
    ADRESID              int                  not null,
    BEDRIJFSNAAM         varchar(255)         not null,
    BEDRIJFSWACHTWOORD   varchar(255)         not null,
@@ -888,19 +923,50 @@ create nonclustered index ADRES_VAN_BEDRIJF_FK on BEDRIJF (ADRESID ASC)
 go
 
 /*==============================================================*/
+/* Table: BEZWAAR                                               */
+/*==============================================================*/
+create table BEZWAAR (
+   BEZWAARID            int                  identity,
+   GEBRUIKERSNAAM       varchar(255)         not null,
+   VERGUNNINGSID        int                  not null,
+   BEZWAARREDEN         varchar(4000)        not null,
+   BESLUIT              varchar(30)          null,
+   BESLUITREDEN         varchar(4000)        null,
+   constraint PK_BEZWAAR primary key (BEZWAARID)
+)
+go
+
+/*==============================================================*/
+/* Index: BEZWAAR_DOOR_GEBRUIKER_FK                             */
+/*==============================================================*/
+
+
+
+
+create nonclustered index BEZWAAR_DOOR_GEBRUIKER_FK on BEZWAAR (GEBRUIKERSNAAM ASC)
+go
+
+/*==============================================================*/
+/* Index: BEZWAAR_OP_VERGUNNING_FK                              */
+/*==============================================================*/
+
+
+
+
+create nonclustered index BEZWAAR_OP_VERGUNNING_FK on BEZWAAR (VERGUNNINGSID ASC)
+go
+
+/*==============================================================*/
 /* Table: GEBRUIKER                                             */
 /*==============================================================*/
 create table GEBRUIKER (
-   GEBRUIKERSNAAM       varchar(255)         not null 
-      constraint CKC_GEBRUIKERSNAAM_GEBRUIKE2 check (len(GEBRUIKERSNAAM) >= '4'),
+   GEBRUIKERSNAAM       varchar(255)         not null,
    WACHTWOORD           varchar(255)         not null,
    VOORNAAM             varchar(100)         not null,
    TUSSENVOEGSEL        varchar(25)          null,
    ACHTERNAAM           varchar(255)         not null,
-   GEBOORTEDATUM        date	             not null 
-      constraint CKC_GEBOORTEDATUM_GEBRUIKE check (GEBOORTEDATUM between '01-01-1900' and dateadd(year, -18, getdate())),
-   GESLACHT             char(1)              not null 
-      constraint CKC_GESLACHT_GEBRUIKE check (GESLACHT in ('M','V','O')),
+   GEBOORTEDATUM        date                 not null,
+   GESLACHT             char(1)              not null,
    MAILADRES            varchar(255)         not null,
    constraint PK_GEBRUIKER primary key (GEBRUIKERSNAAM)
 )
@@ -910,10 +976,8 @@ go
 /* Table: GEBRUIKERTEL                                          */
 /*==============================================================*/
 create table GEBRUIKERTEL (
-   TELEFOONNUMMER       varchar(20)          not null 
-      constraint CKC_TELEFOONNUMMER_GEBRUIKE check (len(TELEFOONNUMMER) >= '8'),
-   GEBRUIKERSNAAM       varchar(255)         not null 
-      constraint CKC_GEBRUIKERSNAAM_GEBRUIKE check (len(GEBRUIKERSNAAM) >= '4'),
+   TELEFOONNUMMER       varchar(20)          not null,
+   GEBRUIKERSNAAM       varchar(255)         not null,
    constraint PK_GEBRUIKERTEL primary key (TELEFOONNUMMER, GEBRUIKERSNAAM)
 )
 go
@@ -943,20 +1007,14 @@ go
 /*==============================================================*/
 create table PROJECT (
    PROJECTID            int                  identity,
-   KVKNUMMER            numeric(8,0)         null default 8
-      constraint CKC_KVKNUMMER_PROJECT check (KVKNUMMER is null or (len(KVKNUMMER) = 8)),
-   GEBRUIKERSNAAM       varchar(255)         not null 
-      constraint CKC_GEBRUIKERSNAAM_PROJECT check (len(GEBRUIKERSNAAM) >= '4'),
-   AANGEMAAKTOP         datetime             not null 
-      constraint CKC_AANGEMAAKTOP_PROJECT check (AANGEMAAKTOP >= '01-01-1900'),
+   KVKNUMMER            numeric(8,0)         null,
+   GEBRUIKERSNAAM       varchar(255)         not null,
+   AANGEMAAKTOP         datetime             not null,
    WERKZAAMHEID         varchar(4000)        not null,
    XCOORDINAAT          float                not null,
    YCOORDINAAT          float                not null,
    constraint PK_PROJECT primary key (PROJECTID)
 )
-go
-
-execute sp_bindefault D_AANGEMAAKTOP, 'PROJECT.AANGEMAAKTOP'
 go
 
 /*==============================================================*/
@@ -992,8 +1050,7 @@ go
 /* Table: TELEFOON                                              */
 /*==============================================================*/
 create table TELEFOON (
-   TELEFOONNUMMER       varchar(20)          not null 
-      constraint CKC_TELEFOONNUMMER_TELEFOON2 check (len(TELEFOONNUMMER) >= '8'),
+   TELEFOONNUMMER       varchar(20)          not null,
    constraint PK_TELEFOON primary key (TELEFOONNUMMER)
 )
 go
@@ -1002,10 +1059,8 @@ go
 /* Table: TELEFOON_VAN_BEDRIJF                                  */
 /*==============================================================*/
 create table TELEFOON_VAN_BEDRIJF (
-   TELEFOONNUMMER       varchar(20)          not null 
-      constraint CKC_TELEFOONNUMMER_TELEFOON check (len(TELEFOONNUMMER) >= '8'),
-   KVKNUMMER            numeric(8,0)         not null
-      constraint CKC_KVKNUMMER_TELEFOON check (len(KVKNUMMER) = 8),
+   TELEFOONNUMMER       varchar(20)          not null,
+   KVKNUMMER            numeric(8,0)         not null,
    constraint PK_TELEFOON_VAN_BEDRIJF primary key (TELEFOONNUMMER, KVKNUMMER)
 )
 go
@@ -1036,16 +1091,12 @@ go
 create table VERGUNNING (
    VERGUNNINGSID        int                  identity,
    VERGUNNINGSNAAM      varchar(255)         not null,
-   STATUS               varchar(255)         not null 
-      constraint CKC_STATUS_VERGUNNI2 check (STATUS in ('Aangevraagd','Afwewezen','Uitgegeven','Verlopen','Bezwaar')),
+   STATUS               varchar(255)         not null,
    PROJECTID            int                  not null,
    OMSCHRIJVING         varchar(4000)        not null,
-   DATUMAANVRAAG        datetime             not null 
-      constraint CKC_DATUMAANVRAAG_VERGUNNI check (DATUMAANVRAAG >= '01-01-1900'),
-   DATUMUITGAVE         datetime             null 
-      constraint CKC_DATUMUITGAVE_VERGUNNI check (DATUMUITGAVE is null or (DATUMUITGAVE >= '01-01-1900')),
-   DATUMVERLOOP         datetime             null 
-      constraint CKC_DATUMVERLOOP_VERGUNNI check (DATUMVERLOOP is null or (DATUMVERLOOP >= '01-01-1990')),
+   DATUMAANVRAAG        datetime             not null,
+   DATUMUITGAVE         datetime             null,
+   DATUMVERLOOP         datetime             null,
    constraint PK_VERGUNNING primary key (VERGUNNINGSID)
 )
 go
@@ -1086,17 +1137,12 @@ go
 create table VERGUNNINGSINFORMATIE (
    PROJECTID            int                  not null,
    VOLGNUMMER           int                  not null,
-   GEBRUIKERSNAAM       varchar(255)         not null 
-      constraint CKC_GEBRUIKERSNAAM_VERGUNNI check (len(GEBRUIKERSNAAM) >= '4'),
+   GEBRUIKERSNAAM       varchar(255)         not null,
    UITLEG               varchar(4000)        not null,
-   DATUM                datetime             not null 
-      constraint CKC_DATUM_VERGUNNI check (DATUM >= '01-01-1900'),
+   DATUM                datetime             not null,
    LOCATIE              varchar(255)         null,
    constraint PK_VERGUNNINGSINFORMATIE primary key (PROJECTID, VOLGNUMMER)
 )
-go
-
-execute sp_bindefault D_DATUMINFORMATIETOEGEVOEGD, 'VERGUNNINGSINFORMATIE.DATUM'
 go
 
 /*==============================================================*/
@@ -1113,8 +1159,7 @@ go
 /* Table: VERGUNNINGSTATUS                                      */
 /*==============================================================*/
 create table VERGUNNINGSTATUS (
-   STATUS               varchar(255)         not null 
-      constraint CKC_STATUS_VERGUNNI check (STATUS in ('Aangevraagd','Afwewezen','Uitgegeven','Verlopen','Bezwaar')),
+   STATUS               varchar(255)         not null,
    constraint PK_VERGUNNINGSTATUS primary key (STATUS)
 )
 go
@@ -1132,10 +1177,8 @@ go
 /* Table: WERKNEMER                                             */
 /*==============================================================*/
 create table WERKNEMER (
-   GEBRUIKERSNAAM       varchar(255)         not null 
-      constraint CKC_GEBRUIKERSNAAM_WERKNEME check (len(GEBRUIKERSNAAM) >= '4'),
-   KVKNUMMER            numeric(8,0)         not null
-      constraint CKC_KVKNUMMER_WERKNEME check (len(KVKNUMMER) = 8),
+   GEBRUIKERSNAAM       varchar(255)         not null,
+   KVKNUMMER            numeric(8,0)         not null,
    TYPE                 varchar(255)         null,
    constraint PK_WERKNEMER primary key (GEBRUIKERSNAAM, KVKNUMMER)
 )
@@ -1154,6 +1197,16 @@ go
 alter table BEDRIJF
    add constraint FK_BEDRIJF_ADRES_VAN_ADRESGEG foreign key (ADRESID)
       references ADRESGEGEVENS (ADRESID)
+go
+
+alter table BEZWAAR
+   add constraint FK_BEZWAAR_BEZWAAR_D_GEBRUIKE foreign key (GEBRUIKERSNAAM)
+      references GEBRUIKER (GEBRUIKERSNAAM)
+go
+
+alter table BEZWAAR
+   add constraint FK_BEZWAAR_BEZWAAR_O_VERGUNNI foreign key (VERGUNNINGSID)
+      references VERGUNNING (VERGUNNINGSID)
 go
 
 alter table PROJECT
