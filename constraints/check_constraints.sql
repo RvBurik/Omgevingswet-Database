@@ -50,7 +50,7 @@ add constraint CKC_KVKNUMMER_TELEFOON check (len(KVKNUMMER) = 8)
 go
 
 alter table vergunning
-add constraint CKC_STATUS_VERGUNNI2 check (STATUS in ('Aangevraagd','Afwewezen','Uitgegeven','Verlopen','Bezwaar'))
+add constraint CKC_STATUS_VERGUNNI2 check (STATUS in ('Aangevraagd','Afgewezen','Uitgegeven','Verlopen','Bezwaar'))
 go
 
 alter table vergunning
@@ -74,7 +74,8 @@ add constraint CKC_DATUM_VERGUNNI check (DATUM >= '01-01-1900')
 go
 
 alter table vergunningstatus
-add constraint CKC_STATUS_VERGUNNI check (STATUS in ('Aangevraagd','Afwewezen','Uitgegeven','Verlopen','Bezwaar'))
+add constraint CKC_STATUS_VERGUNNI check (STATUS in ('Aangevraagd','Afgewezen','Uitgegeven','Verlopen','Bezwaar'))
+go
 
 alter table werknemer
 add constraint CKC_GEBRUIKERSNAAM_WERKNEME check (len(GEBRUIKERSNAAM) >= '4')
