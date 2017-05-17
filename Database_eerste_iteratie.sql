@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      Microsoft SQL Server 2012                    */
-/* Created on:     2017-05-15 11:14:32                          */
+/* Created on:     2017-05-16 10:30:41                          */
 /*==============================================================*/
 
 
@@ -932,7 +932,8 @@ create table BEZWAAR (
    BEZWAARREDEN         varchar(4000)        not null,
    BESLUIT              varchar(30)          null,
    BESLUITREDEN         varchar(4000)        null,
-   constraint PK_BEZWAAR primary key (BEZWAARID)
+   constraint PK_BEZWAAR primary key (BEZWAARID),
+   constraint AK_KEY_2_BEZWAAR unique (GEBRUIKERSNAAM, VERGUNNINGSID)
 )
 go
 
