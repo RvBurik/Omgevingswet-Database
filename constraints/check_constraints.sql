@@ -84,3 +84,11 @@ go
 alter table werknemer
 add constraint CKC_KVKNUMMER_WERKNEME check (len(KVKNUMMER) = 8)
 go
+
+alter table abonnement
+add constraint CKC_UITGIFTE_VOOR_AANVRAAG check (datumuitgave >= datumaanvraag)
+go
+
+alter table abonnement
+add constraint CKC_DATUM_AUTOMATISCHE_UITGIFTE check (automatischtoegevoegd = 0 OR datumuitgave = datumaanvraag)
+go
