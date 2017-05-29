@@ -1065,8 +1065,8 @@ go
 create table ABONNEMENT (
    GEBRUIKERSNAAM       varchar(255)         not null,
    PROJECTID            int                  not null,
-   ABDATUMAANVRAAG      datetime             not null,
-   ABDATUMUITGAVE       datetime             null,
+   DATUMAANVRAAG      datetime             not null,
+   DATUMUITGAVE       datetime             null,
    AUTOMATISCHTOEGEVOEGD bit                  not null,
    constraint PK_ABONNEMENT primary key (GEBRUIKERSNAAM, PROJECTID)
 )
@@ -1100,12 +1100,13 @@ create table ADRESGEGEVENS (
    POSTCODE             varchar(6)           not null,
    HUISNUMMER           numeric(5,0)         not null,
    TOEVOEGING           varchar(5)           null,
-   ADRESXCOORDINAAT     float                not null,
-   ADRESYCOORDINAAT     float                not null,
+   XCOORDINAAT     float                not null,
+   YCOORDINAAT     float                not null,
    constraint PK_ADRESGEGEVENS primary key (ADRESID),
    constraint AK_IDENTIFIER_2_ADRESGEG unique (POSTCODE, HUISNUMMER, TOEVOEGING)
 )
 go
+
 
 /*==============================================================*/
 /* Table: ADRES_VAN_GEBRUIKER                                   */
