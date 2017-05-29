@@ -1,8 +1,22 @@
 /*==============================================================*/
 /* DBMS name:      Microsoft SQL Server 2012                    */
-/* Created on:     2017-05-23 15:26:50                          */
+/* Created on:     29-5-2017 13:11:52                           */
 /*==============================================================*/
 
+
+if exists (select 1
+   from sys.sysreferences r join sys.sysobjects o on (o.id = r.constid and o.type = 'F')
+   where r.fkeyid = object_id('ABONNEMENT') and o.name = 'FK_ABONNEME_ABONNEMEN_PROJECT')
+alter table ABONNEMENT
+   drop constraint FK_ABONNEME_ABONNEMEN_PROJECT
+go
+
+if exists (select 1
+   from sys.sysreferences r join sys.sysobjects o on (o.id = r.constid and o.type = 'F')
+   where r.fkeyid = object_id('ABONNEMENT') and o.name = 'FK_ABONNEME_ABONNEMEN_GEBRUIKE')
+alter table ABONNEMENT
+   drop constraint FK_ABONNEME_ABONNEMEN_GEBRUIKE
+go
 
 if exists (select 1
    from sys.sysreferences r join sys.sysobjects o on (o.id = r.constid and o.type = 'F')
@@ -128,6 +142,31 @@ if exists (select 1
    where r.fkeyid = object_id('WERKNEMER') and o.name = 'FK_WERKNEME_WERKNEMER_BEDRIJF')
 alter table WERKNEMER
    drop constraint FK_WERKNEME_WERKNEMER_BEDRIJF
+go
+
+if exists (select 1
+            from  sysindexes
+           where  id    = object_id('ABONNEMENT')
+            and   name  = 'ABONNEMENT_OP_PROJECT_FK'
+            and   indid > 0
+            and   indid < 255)
+   drop index ABONNEMENT.ABONNEMENT_OP_PROJECT_FK
+go
+
+if exists (select 1
+            from  sysindexes
+           where  id    = object_id('ABONNEMENT')
+            and   name  = 'ABONNEMENT_VAN_GEBRUIKER_FK'
+            and   indid > 0
+            and   indid < 255)
+   drop index ABONNEMENT.ABONNEMENT_VAN_GEBRUIKER_FK
+go
+
+if exists (select 1
+            from  sysobjects
+           where  id = object_id('ABONNEMENT')
+            and   type = 'U')
+   drop table ABONNEMENT
 go
 
 if exists (select 1
@@ -472,6 +511,10 @@ if exists(select 1 from systypes where name='ADRESID')
    drop type ADRESID
 go
 
+if exists(select 1 from systypes where name='AUTOMATISCHTOEGEVOEGD')
+   drop type AUTOMATISCHTOEGEVOEGD
+go
+
 if exists(select 1 from systypes where name='BEDRIJFSNAAM')
    drop type BEDRIJFSNAAM
 go
@@ -738,6 +781,13 @@ go
 /*==============================================================*/
 create type ADRESID
    from int
+go
+
+/*==============================================================*/
+/* Domain: AUTOMATISCHTOEGEVOEGD                                */
+/*==============================================================*/
+create type AUTOMATISCHTOEGEVOEGD
+   from bit
 go
 
 /*==============================================================*/
@@ -1010,6 +1060,39 @@ create type WERKZAAMHEID
 go
 
 /*==============================================================*/
+/* Table: ABONNEMENT                                            */
+/*==============================================================*/
+create table ABONNEMENT (
+   GEBRUIKERSNAAM       varchar(255)         not null,
+   PROJECTID            int                  not null,
+   ABDATUMAANVRAAG      datetime             not null,
+   ABDATUMUITGAVE       datetime             null,
+   AUTOMATISCHTOEGEVOEGD bit                  not null,
+   constraint PK_ABONNEMENT primary key (GEBRUIKERSNAAM, PROJECTID)
+)
+go
+
+/*==============================================================*/
+/* Index: ABONNEMENT_VAN_GEBRUIKER_FK                           */
+/*==============================================================*/
+
+
+
+
+create nonclustered index ABONNEMENT_VAN_GEBRUIKER_FK on ABONNEMENT (GEBRUIKERSNAAM ASC)
+go
+
+/*==============================================================*/
+/* Index: ABONNEMENT_OP_PROJECT_FK                              */
+/*==============================================================*/
+
+
+
+
+create nonclustered index ABONNEMENT_OP_PROJECT_FK on ABONNEMENT (PROJECTID ASC)
+go
+
+/*==============================================================*/
 /* Table: ADRESGEGEVENS                                         */
 /*==============================================================*/
 create table ADRESGEGEVENS (
@@ -1017,6 +1100,8 @@ create table ADRESGEGEVENS (
    POSTCODE             varchar(6)           not null,
    HUISNUMMER           numeric(5,0)         not null,
    TOEVOEGING           varchar(5)           null,
+   ADRESXCOORDINAAT     float                not null,
+   ADRESYCOORDINAAT     float                not null,
    constraint PK_ADRESGEGEVENS primary key (ADRESID),
    constraint AK_IDENTIFIER_2_ADRESGEG unique (POSTCODE, HUISNUMMER, TOEVOEGING)
 )
@@ -1440,6 +1525,16 @@ go
 
 
 create nonclustered index WERKNEMER2_FK on WERKNEMER (KVKNUMMER ASC)
+go
+
+alter table ABONNEMENT
+   add constraint FK_ABONNEME_ABONNEMEN_PROJECT foreign key (PROJECTID)
+      references PROJECT (PROJECTID)
+go
+
+alter table ABONNEMENT
+   add constraint FK_ABONNEME_ABONNEMEN_GEBRUIKE foreign key (GEBRUIKERSNAAM)
+      references GEBRUIKER (GEBRUIKERSNAAM)
 go
 
 alter table BEDRIJF
