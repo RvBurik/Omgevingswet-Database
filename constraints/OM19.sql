@@ -16,7 +16,7 @@ begin
 			from inserted i inner join gebruiker g on i.GEBRUIKERSNAAM = g.GEBRUIKERSNAAM
 			where g.GEBOORTEDATUM > DATEADD(YEAR, -18, getdate())
 		) begin
-			raiserror('Een gebruiker moet minimaal 18 jaar zijn om bezwaar te kunnen maken.', 16, 1);
+			THROW 50018, 'Een gebruiker moet minimaal 18 jaar zijn om bezwaar te kunnen maken.', 1;
 		end
 	end try
 	begin catch

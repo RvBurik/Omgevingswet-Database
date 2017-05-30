@@ -28,67 +28,17 @@ begin try
 	values (@vergunningsnaam1);
 
 	-- Aanmaken testdata van bezwaarmaker.
-	declare @postcode1 varchar(255) = '6951BH';
-	declare @huisnummer1 int = 13;
 	declare @gebruikersnaam1 varchar(255) = 'dncn';
-	declare @wachtwoord1 varchar(255) = 'wachtwoord';
-	declare @voornaam1 varchar(255) = 'Duncan';
-	declare @achternaam1 varchar(255) = 'Luiten';
 	declare @geboortedatum1 date = '1994-10-03';
-	declare @geslacht1 char(1) = 'M';
-	declare @mailadres1 varchar(255) = 'lyraeduncan@hotmail.com';
-	declare @telefoonnummer1 varchar(255) = '0683058120';
 	declare @bezwaarreden1 varchar(4000) = 'Testbezwaar';
 
-	/*
-	insert into ADRESGEGEVENS (POSTCODE, HUISNUMMER)
-	values (@postcode1, @huisnummer1);
-
-	declare @adresid1 int scope_identity();
-	*/
-	insert into GEBRUIKER (GEBRUIKERSNAAM, WACHTWOORD, VOORNAAM, ACHTERNAAM, GEBOORTEDATUM, GESLACHT, MAILADRES)
-	values (@gebruikersnaam1, @wachtwoord1, @voornaam1, @achternaam1, @geboortedatum1, @geslacht1, @mailadres1);
-	/*
-	insert into ADRES_VAN_GEBRUIKER (GEBRUIKERSNAAM, ADRESID)
-	values (@gebruikersnaam1, @adresid1);
-	
-	insert into TELEFOON (TELEFOONNUMMER)
-	values (@telefoonnummer1);
-
-	insert into GEBRUIKERTEL (GEBRUIKERSNAAM, TELEFOONNUMMER)
-	values (@gebruikersnaam1, @telefoonnummer1);
-	*/
+	EXEC spTestInsertGebruiker @gebruikersnaam1, NULL, NULL, NULL, NULL, @geboortedatum1, NULL, NULL
 
 	-- Aanmaken testdata van werknemer van testbedrijf.
-	declare @postcode2 varchar(255) = '1234AA';
-	declare @huisnummer2 int = 2;
 	declare @gebruikersnaam2 varchar(255) = 'testaccount';
-	declare @wachtwoord2 varchar(255) = 'wachtwoord';
-	declare @voornaam2 varchar(255) = 'Test';
-	declare @achternaam2 varchar(255) = 'Account';
 	declare @geboortedatum2 date = '1990-01-01';
-	declare @geslacht2 char(1) = 'O';
-	declare @mailadres2 varchar(255) = 'test@account.nl';
-	declare @telefoonnummer2 varchar(255) = '0612345678';
-	/*
-	insert into ADRESGEGEVENS (POSTCODE, HUISNUMMER)
-	values (@postcode2, @huisnummer2);
 
-	declare @adresid2 int = scope_identity();
-	*/
-	insert into GEBRUIKER (GEBRUIKERSNAAM, WACHTWOORD, VOORNAAM, ACHTERNAAM, GEBOORTEDATUM, GESLACHT, MAILADRES)
-	values (@gebruikersnaam2, @wachtwoord2, @voornaam2, @achternaam2, @geboortedatum2, @geslacht2, @mailadres2);
-
-	/*
-	insert into ADRES_VAN_GEBRUIKER (GEBRUIKERSNAAM, ADRESID)
-	values (@gebruikersnaam2, @adresid2);
-	
-	insert into TELEFOON (TELEFOONNUMMER)
-	values (@telefoonnummer2);
-
-	insert into GEBRUIKERTEL (GEBRUIKERSNAAM, TELEFOONNUMMER)
-	values (@gebruikersnaam2, @telefoonnummer3);
-	*/
+	EXEC spTestInsertGebruiker @gebruikersnaam2, NULL, NULL, NULL, NULL, @geboortedatum2, NULL, NULL
 
 	-- Aanmaken testdata van bedrijf met werknemer(s).
 	declare @postcode3 varchar(255) = '1111BB';
@@ -98,21 +48,13 @@ begin try
 	declare @bedrijfswachtwoord3 varchar(255) = 'wachtwoord';
 	declare @telefoonnummer3 varchar(255) = '0611111111';
 	
-	insert into ADRESGEGEVENS (POSTCODE, HUISNUMMER)
-	values (@postcode3, @huisnummer3);
+	insert into ADRESGEGEVENS (POSTCODE, HUISNUMMER, XCOORDINAAT, YCOORDINAAT)
+	values (@postcode3, @huisnummer3, 0, 0);
 
 	declare @adresid3 int = scope_identity();
 
 	insert into BEDRIJF (KVKNUMMER, ADRESID, BEDRIJFSNAAM, BEDRIJFSWACHTWOORD)
 	values (@kvknummer3, @adresid3, @bedrijfsnaam3, @bedrijfswachtwoord3);
-
-	/*
-	insert into TELEFOON (TELEFOONNUMMER)
-	values (@telefoonnummer3);
-
-	insert into TELEFOON_VAN_BEDRIJF (KVKNUMMER, TELEFOONNUMMER)
-	values (@kvknummer3, @telefoonnummer3);
-	*/
 
 	insert into WERKNEMER (GEBRUIKERSNAAM, KVKNUMMER, TYPE)
 	values (@gebruikersnaam2, @kvknummer3, @rol1);
@@ -144,8 +86,8 @@ begin try
 
 	declare @vergunningsid3 int = scope_identity();
 
-	insert into BEZWAAR (GEBRUIKERSNAAM, VERGUNNINGSID, BEZWAARREDEN)
-	values (@gebruikersnaam1, @vergunningsid3, @bezwaarreden1);
+	insert into BEZWAAR (GEBRUIKERSNAAM, PROJECTID, VERGUNNINGSID, BEZWAARREDEN)
+	values (@gebruikersnaam1, @projectid3, @vergunningsid3, @bezwaarreden1);
 
 	print 'Test is geslaagd.';
 
@@ -193,92 +135,28 @@ begin try
 	values (@vergunningsnaam1);
 	
 	-- Aanmaken testdata van bezwaarmaker.
-	declare @postcode1 varchar(255) = '6951BH';
-	declare @huisnummer1 int = 13;
 	declare @gebruikersnaam1 varchar(255) = 'dncn';
-	declare @wachtwoord1 varchar(255) = 'wachtwoord';
-	declare @voornaam1 varchar(255) = 'Duncan';
-	declare @achternaam1 varchar(255) = 'Luiten';
 	declare @geboortedatum1 date = dateadd(year, -17, getdate());
-	declare @geslacht1 char(1) = 'M';
-	declare @mailadres1 varchar(255) = 'lyraeduncan@hotmail.com';
-	declare @telefoonnummer1 varchar(255) = '0683058120';
 	declare @bezwaarreden1 varchar(4000) = 'Testbezwaar';
-	
-	/*
-	insert into ADRESGEGEVENS (POSTCODE, HUISNUMMER)
-	values (@postcode1, @huisnummer1);
 
-	declare @adresid1 int scope_identity();
-	*/
-	EXEC sp_MSforeachtable @command1="ALTER TABLE ? NOCHECK CONSTRAINT ALL"
-	insert into GEBRUIKER (GEBRUIKERSNAAM, WACHTWOORD, VOORNAAM, ACHTERNAAM, GEBOORTEDATUM, GESLACHT, MAILADRES)
-	values (@gebruikersnaam1, @wachtwoord1, @voornaam1, @achternaam1, @geboortedatum1, @geslacht1, @mailadres1);
-	EXEC sp_MSforeachtable @command1="ALTER TABLE ? CHECK CONSTRAINT ALL"
-	/*
-	insert into ADRES_VAN_GEBRUIKER (GEBRUIKERSNAAM, ADRESID)
-	values (@gebruikersnaam1, @adresid1);
-	
-	insert into TELEFOON (TELEFOONNUMMER)
-	values (@telefoonnummer1);
-
-	insert into GEBRUIKERTEL (GEBRUIKERSNAAM, TELEFOONNUMMER)
-	values (@gebruikersnaam1, @telefoonnummer1);
-	*/
+	EXEC spTestInsertGebruiker @gebruikersnaam1, NULL, NULL, NULL, NULL, @geboortedatum1, NULL, NULL
 
 	-- Aanmaken testdata van werknemer van testbedrijf.
-	declare @postcode2 varchar(255) = '1234AA';
-	declare @huisnummer2 int = 2;
 	declare @gebruikersnaam2 varchar(255) = 'testaccount';
-	declare @wachtwoord2 varchar(255) = 'wachtwoord';
-	declare @voornaam2 varchar(255) = 'Test';
-	declare @achternaam2 varchar(255) = 'Account';
 	declare @geboortedatum2 date = '1990-01-01';
-	declare @geslacht2 char(1) = 'O';
-	declare @mailadres2 varchar(255) = 'test@account.nl';
-	declare @telefoonnummer2 varchar(255) = '0612345678';
-	/*
-	insert into ADRESGEGEVENS (POSTCODE, HUISNUMMER)
-	values (@postcode2, @huisnummer2);
 
-	declare @adresid2 int = scope_identity();
-	*/
-	insert into GEBRUIKER (GEBRUIKERSNAAM, WACHTWOORD, VOORNAAM, ACHTERNAAM, GEBOORTEDATUM, GESLACHT, MAILADRES)
-	values (@gebruikersnaam2, @wachtwoord2, @voornaam2, @achternaam2, @geboortedatum2, @geslacht2, @mailadres2);
-	/*
-	insert into ADRES_VAN_GEBRUIKER (GEBRUIKERSNAAM, ADRESID)
-	values (@gebruikersnaam2, @adresid2);
-	
-	insert into TELEFOON (TELEFOONNUMMER)
-	values (@telefoonnummer2);
-
-	insert into GEBRUIKERTEL (GEBRUIKERSNAAM, TELEFOONNUMMER)
-	values (@gebruikersnaam2, @telefoonnummer3);
-	*/
+	EXEC spTestInsertGebruiker @gebruikersnaam2, NULL, NULL, NULL, NULL, @geboortedatum2, NULL, NULL
 
 	-- Aanmaken testdata van bedrijf met werknemer(s).
-	declare @postcode3 varchar(255) = '1111BB';
-	declare @huisnummer3 int = 1337;
+	declare @adresid3 int = 5000
 	declare @kvknummer3 int = 12345678;
 	declare @bedrijfsnaam3 varchar(255) = 'DatabaseFactory5';
 	declare @bedrijfswachtwoord3 varchar(255) = 'wachtwoord';
-	declare @telefoonnummer3 varchar(255) = '0611111111';
-	
-	insert into ADRESGEGEVENS (POSTCODE, HUISNUMMER)
-	values (@postcode3, @huisnummer3);
 
-	declare @adresid3 int = scope_identity();
+	EXEC spTestInsertAdresgegevens  @adresid3, NULL, NULL, NULL, NULL, NULL
 
 	insert into BEDRIJF (KVKNUMMER, ADRESID, BEDRIJFSNAAM, BEDRIJFSWACHTWOORD)
 	values (@kvknummer3, @adresid3, @bedrijfsnaam3, @bedrijfswachtwoord3);
-
-	/*
-	insert into TELEFOON (TELEFOONNUMMER)
-	values (@telefoonnummer3);
-
-	insert into TELEFOON_VAN_BEDRIJF (KVKNUMMER, TELEFOONNUMMER)
-	values (@kvknummer3, @telefoonnummer3);
-	*/
 
 	insert into WERKNEMER (GEBRUIKERSNAAM, KVKNUMMER, TYPE)
 	values (@gebruikersnaam2, @kvknummer3, @rol1);
@@ -310,8 +188,8 @@ begin try
 
 	declare @vergunningsid3 int = scope_identity();
 
-	insert into BEZWAAR (GEBRUIKERSNAAM, VERGUNNINGSID, BEZWAARREDEN)
-	values (@gebruikersnaam1, @vergunningsid3, @bezwaarreden1);
+	insert into BEZWAAR (GEBRUIKERSNAAM, PROJECTID, VERGUNNINGSID, BEZWAARREDEN)
+	values (@gebruikersnaam1, @projectid3, @vergunningsid3, @bezwaarreden1);
 
 	print 'Test is gefaald.';
 
@@ -326,8 +204,10 @@ begin catch
 		rollback tran
 	else
 		rollback tran savepoint;
-	--throw;
-	print 'Test is geslaagd.';
+	IF (ERROR_NUMBER() = 50018)
+		print 'Test is geslaagd.';
+	ELSE
+		THROW
 end catch
 go
 SET NOCOUNT OFF
