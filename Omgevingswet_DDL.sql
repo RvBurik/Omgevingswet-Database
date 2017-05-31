@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      Microsoft SQL Server 2014                    */
-/* Created on:     31-May-17 11:13:28                           */
+/* Created on:     31-5-2017 11:47:48                           */
 /*==============================================================*/
 
 
@@ -513,6 +513,10 @@ if exists(select 1 from systypes where name='PROJECTID')
    drop type PROJECTID
 go
 
+if exists(select 1 from systypes where name='PROJECTTITEL')
+   drop type PROJECTTITEL
+go
+
 if exists(select 1 from systypes where name='ROL')
    drop type ROL
 go
@@ -831,6 +835,13 @@ create type PROJECTID
 go
 
 /*==============================================================*/
+/* Domain: PROJECTTITEL                                         */
+/*==============================================================*/
+create type PROJECTTITEL
+   from varchar(255)
+go
+
+/*==============================================================*/
 /* Domain: ROL                                                  */
 /*==============================================================*/
 create type ROL
@@ -940,6 +951,8 @@ create table ADRES (
    HUISNUMMER           HUISNUMMER           not null 
       constraint CKC_HUISNUMMER_ADRES check (HUISNUMMER between 00000001 and 99999999),
    TOEVOEGING           TOEVOEGING           null,
+   XCOORDINAAT          COORDINAAT           not null,
+   YCOORDINAAT          COORDINAAT           not null,
    constraint PK_ADRES primary key (ADRESID),
    constraint AK_IDENTIFIER_2_ADRES unique (POSTCODE, HUISNUMMER, TOEVOEGING)
 )
@@ -1023,7 +1036,7 @@ go
 /*==============================================================*/
 create table GEMEENTE_GEBRUIKER (
    GEBRUIKERSNAAM       GEBRUIKERSNAAM       not null,
-   RECHTNAAM            varchar(255)         null,
+   RECHTNAAM            varchar(255)         not null,
    constraint PK_GEMEENTE_GEBRUIKER primary key (GEBRUIKERSNAAM)
 )
 go
@@ -1048,6 +1061,7 @@ go
 /*==============================================================*/
 create table PROJECT (
    PROJECTID            PROJECTID            not null,
+   PROJECTTITEL         PROJECTTITEL         not null,
    AANGEMAAKTOP         AANGEMAAKTOP         not null,
    WERKZAAMHEID         WERKZAAMHEID         not null,
    XCOORDINAAT          COORDINAAT           not null,
@@ -1062,10 +1076,10 @@ go
 create table PROJECTROL_VAN_GEBRUIKER (
    GEBRUIKERSNAAM       GEBRUIKERSNAAM       not null,
    PROJECTID            PROJECTID            not null,
-   ROLNAAM              varchar(255)         null,
-   DATUMAANVRAAG        date                 null,
+   ROLNAAM              varchar(255)         not null,
+   DATUMAANVRAAG        date                 not null,
    DATUMUITGAVE         date                 null,
-   AUTOMATISCHTOEGEVOEGD boolean              null,
+   AUTOMATISCHTOEGEVOEGD boolean              not null,
    constraint PK_PROJECTROL_VAN_GEBRUIKER primary key (GEBRUIKERSNAAM, PROJECTID)
 )
 go

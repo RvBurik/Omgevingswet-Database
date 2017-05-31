@@ -15,9 +15,8 @@ AS
 	END
 GO
 
-EXEC spResetUserInformation @gebruiker = 'LocationTester', @postc = '7334AA', @hnummer = 284, @toev = 'A', @tel = '0655871782'
-SELECT * FROM GEBRUIKERTEL WHERE GEBRUIKERSNAAM = 'LocationTester'
-SELECT * FROM GEBRUIKER
+EXEC spResetUserInformation @gebruiker = 'LocationTest', @postc = '7334AA', @hnummer = 284, @toev = 'A', @tel = '0655871782'
+
 
 ALTER PROCEDURE spInsertUser
 @gebruikersnaam VARCHAR(255),
@@ -46,12 +45,10 @@ AS
 		IF @mailadres IN (SELECT mailadres FROM GEBRUIKER)
 			BEGIN
 				RAISERROR('Email is al in gebruik', 16, 1);
-				EXEC spResetUserInformation @gebruiker = @gebruikersnaam, @postc = @postcode, @hnummer = @huisnummer, @toev = @toevoeging
 			END
 		IF @gebruikersnaam IN (SELECT gebruikersnaam FROM GEBRUIKER)
 			BEGIN
 				RAISERROR('Deze gebruikersnaam is al in gebruik', 16, 1);
-				EXEC spResetUserInformation @gebruiker = @gebruikersnaam, @postc = @postcode, @hnummer = @huisnummer, @toev = @toevoeging
 			END
 		--Check of adres al bestaat in de db, zo niet, dan wordt deze toegevoegd
 		SELECT @ADRESID = adresID FROM ADRESGEGEVENS WHERE postcode = @postcode AND huisnummer = @huisnummer AND toevoeging = @toevoeging
@@ -61,69 +58,48 @@ AS
 				VALUES(@postcode, @huisnummer, @toevoeging, @xcoordinaat, @ycoordinaat)
 			END
 		--Toevoegen van de gebruiker zelf 
-		BEGIN TRY
+		BEGIN
 			INSERT INTO GEBRUIKER(GEBRUIKERSNAAM, WACHTWOORD, VOORNAAM, TUSSENVOEGSEL, ACHTERNAAM, GEBOORTEDATUM, GESLACHT, MAILADRES)
 			VALUES(@gebruikersnaam, @wachtwoord, @voornaam, @tussenvoegsel, @achternaam, @geboortedatum, @geslacht, @mailadres)
-		END TRY
-		BEGIN CATCH
-			RAISERROR('AN ERROR OCCURED ON INSERTING A USER', 16, 1)
-			EXEC spResetUserInformation @gebruiker = @gebruikersnaam, @postc = @postcode, @hnummer = @huisnummer, @toev = @toevoeging
-		END CATCH
+		END
+
 		--Haal het nieuw toegevoegde adres op
 		SELECT @ADRESIDTOEGEVOEGD = adresID FROM ADRESGEGEVENS WHERE postcode = @postcode AND huisnummer = @huisnummer AND toevoeging = @toevoeging
-		BEGIN TRY
+		BEGIN
 			INSERT INTO ADRES_VAN_GEBRUIKER(ADRESID, GEBRUIKERSNAAM)
 			VALUES(@ADRESIDTOEGEVOEGD, @gebruikersnaam)
-		END TRY
-		BEGIN CATCH
-			RAISERROR('AN ERROR OCCURED ON INSERTING ADRES', 16, 1)
-			EXEC spResetUserInformation @gebruiker = @gebruikersnaam, @postc = @postcode, @hnummer = @huisnummer, @toev = @toevoeging
-		END CATCH
+		END
+
 		--Check op telefoonnummer 
 		SELECT @TELEFOONNUMMER = TELEFOONNUMMER FROM TELEFOON WHERE TELEFOONNUMMER = @telefoon
 		IF @TELEFOONNUMMER IS NULL
-			BEGIN TRY
+			BEGIN 
 				INSERT INTO TELEFOON(TELEFOONNUMMER)
 				VALUES(@telefoon)
-			END TRY
-			BEGIN CATCH
-				RAISERROR('AN ERROR OCCURED ON INSERTING A TELNUMBER', 16, 1)
-				EXEC spResetUserInformation @gebruiker = @gebruikersnaam, @postc = @postcode, @hnummer = @huisnummer, @toev = @toevoeging
-			END CATCH
+			END
+
 
 		--Koppel telefoonnummer aan gebruiker
-		BEGIN TRY
+		BEGIN
 			INSERT INTO GEBRUIKERTEL(TELEFOONNUMMER, GEBRUIKERSNAAM)
 			VALUES(@telefoon, @gebruikersnaam)
-		END TRY
-		BEGIN CATCH
-			RAISERROR('AN ERROR OCCURED ON INSERTING TELNUMBER', 16, 1)
-			EXEC spResetUserInformation @gebruiker = @gebruikersnaam, @postc = @postcode, @hnummer = @huisnummer, @toev = @toevoeging
-		END CATCH
+		END
+
 	END TRY
 	BEGIN CATCH
 		THROW;	
+		ROLLBACK
 	END CATCH
 GO
 
-SELECT * FROM ADRESGEGEVENS
 
 
+SELECT * FROM GEBRUIKER WHERE GEBRUIKERSNAAM = 'LocationTest'
+SELECT * FROM GEBRUIKERTEL WHERE GEBRUIKERSNAAM = 'LocationTest'
+SELECT * FROM ADRES_VAN_GEBRUIKER WHERE GEBRUIKERSNAAM = 'LocationTest'
 
-UPDATE ADRES_VAN_GEBRUIKER
-SET ADRESID = 5 
-WHERE ADRESID = 1 OR ADRESID = 2
-
-SELECT * FROM BEDRIJF
-UPDATE BEDRIJF SET ADRESID = 2 WHERE ADRESID = 1
-
-
-DELETE FROM ADRESGEGEVENS WHERE ADRESID = 1
-SELECT * FROM ADRES_VAN_GEBRUIKER
-
-SELECT * FROM GEBRUIKER
-SELECT * FROM GEBRUIKERTEL
-
+DELETE FROM GEBRUIKERTEL WHERE GEBRUIKERSNAAM = 'LocationTest'
+DELETE FROM ADRES_VAN_GEBRUIKER WHERE GEBRUIKERSNAAM = 'LocationTest'
 DELETE FROM GEBRUIKER WHERE GEBRUIKERSNAAM = 'LocationTest'
 
 EXEC spInsertUser @gebruikersnaam = 'admin', @voornaam = 'Ricardo', @tussenvoegsel = 'van', @achternaam = 'Burik', @geboortedatum = '1996-11-29', @geslacht = 'M', @mailadres = 'ricardo@bvb-solutions.com',
