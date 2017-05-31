@@ -1,98 +1,42 @@
 /*==============================================================*/
-/* DBMS name:      Microsoft SQL Server 2014                    */
-/* Created on:     31-May-17 11:13:28                           */
+/* DBMS name:      Microsoft SQL Server 2012                    */
+/* Created on:     2017-05-16 10:30:41                          */
 /*==============================================================*/
 
 
 if exists (select 1
    from sys.sysreferences r join sys.sysobjects o on (o.id = r.constid and o.type = 'F')
-   where r.fkeyid = object_id('ADRES_VAN_GEBRUIKER') and o.name = 'FK_ADRES_VA_ADRES_VAN_ADRES')
-alter table ADRES_VAN_GEBRUIKER
-   drop constraint FK_ADRES_VA_ADRES_VAN_ADRES
-go
-
-if exists (select 1
-   from sys.sysreferences r join sys.sysobjects o on (o.id = r.constid and o.type = 'F')
-   where r.fkeyid = object_id('ADRES_VAN_GEBRUIKER') and o.name = 'FK_ADRES_VA_ADRES_VAN_GEBRUIKE')
-alter table ADRES_VAN_GEBRUIKER
-   drop constraint FK_ADRES_VA_ADRES_VAN_GEBRUIKE
-go
-
-if exists (select 1
-   from sys.sysreferences r join sys.sysobjects o on (o.id = r.constid and o.type = 'F')
-   where r.fkeyid = object_id('BEDRIJF') and o.name = 'FK_BEDRIJF_GEBRUIKER_GEBRUIKE')
+   where r.fkeyid = object_id('BEDRIJF') and o.name = 'FK_BEDRIJF_ADRES_VAN_ADRESGEG')
 alter table BEDRIJF
-   drop constraint FK_BEDRIJF_GEBRUIKER_GEBRUIKE
+   drop constraint FK_BEDRIJF_ADRES_VAN_ADRESGEG
 go
 
 if exists (select 1
    from sys.sysreferences r join sys.sysobjects o on (o.id = r.constid and o.type = 'F')
-   where r.fkeyid = object_id('BEZWAAR') and o.name = 'FK_BEZWAAR_PROJECT_V_PROJECT')
+   where r.fkeyid = object_id('BEZWAAR') and o.name = 'FK_BEZWAAR_BEZWAAR_D_GEBRUIKE')
 alter table BEZWAAR
-   drop constraint FK_BEZWAAR_PROJECT_V_PROJECT
+   drop constraint FK_BEZWAAR_BEZWAAR_D_GEBRUIKE
 go
 
 if exists (select 1
    from sys.sysreferences r join sys.sysobjects o on (o.id = r.constid and o.type = 'F')
-   where r.fkeyid = object_id('GEMEENTE_GEBRUIKER') and o.name = 'FK_GEMEENTE_REFERENCE_GEBRUIKE')
-alter table GEMEENTE_GEBRUIKER
-   drop constraint FK_GEMEENTE_REFERENCE_GEBRUIKE
+   where r.fkeyid = object_id('BEZWAAR') and o.name = 'FK_BEZWAAR_BEZWAAR_O_VERGUNNI')
+alter table BEZWAAR
+   drop constraint FK_BEZWAAR_BEZWAAR_O_VERGUNNI
 go
 
 if exists (select 1
    from sys.sysreferences r join sys.sysobjects o on (o.id = r.constid and o.type = 'F')
-   where r.fkeyid = object_id('GEMEENTE_GEBRUIKER') and o.name = 'FK_GEMEENTE_REFERENCE_RECHT')
-alter table GEMEENTE_GEBRUIKER
-   drop constraint FK_GEMEENTE_REFERENCE_RECHT
+   where r.fkeyid = object_id('PROJECT') and o.name = 'FK_PROJECT_AUTEUR_VA_GEBRUIKE')
+alter table PROJECT
+   drop constraint FK_PROJECT_AUTEUR_VA_GEBRUIKE
 go
 
 if exists (select 1
    from sys.sysreferences r join sys.sysobjects o on (o.id = r.constid and o.type = 'F')
-   where r.fkeyid = object_id('PARTICULIER') and o.name = 'FK_PARTICUL_GEBRUIKER_GEBRUIKE')
-alter table PARTICULIER
-   drop constraint FK_PARTICUL_GEBRUIKER_GEBRUIKE
-go
-
-if exists (select 1
-   from sys.sysreferences r join sys.sysobjects o on (o.id = r.constid and o.type = 'F')
-   where r.fkeyid = object_id('PROJECTROL_VAN_GEBRUIKER') and o.name = 'FK_PROJECTR_PROJECTRO_GEBRUIKE')
-alter table PROJECTROL_VAN_GEBRUIKER
-   drop constraint FK_PROJECTR_PROJECTRO_GEBRUIKE
-go
-
-if exists (select 1
-   from sys.sysreferences r join sys.sysobjects o on (o.id = r.constid and o.type = 'F')
-   where r.fkeyid = object_id('PROJECTROL_VAN_GEBRUIKER') and o.name = 'FK_PROJECTR_PROJECTRO_PROJECT')
-alter table PROJECTROL_VAN_GEBRUIKER
-   drop constraint FK_PROJECTR_PROJECTRO_PROJECT
-go
-
-if exists (select 1
-   from sys.sysreferences r join sys.sysobjects o on (o.id = r.constid and o.type = 'F')
-   where r.fkeyid = object_id('PROJECTROL_VAN_GEBRUIKER') and o.name = 'FK_PROJECTR_REFERENCE_ROL')
-alter table PROJECTROL_VAN_GEBRUIKER
-   drop constraint FK_PROJECTR_REFERENCE_ROL
-go
-
-if exists (select 1
-   from sys.sysreferences r join sys.sysobjects o on (o.id = r.constid and o.type = 'F')
-   where r.fkeyid = object_id('TELEFOON_VAN_GEBRUIKER') and o.name = 'FK_TELEFOON_TELEFOON__TELEFOON')
-alter table TELEFOON_VAN_GEBRUIKER
-   drop constraint FK_TELEFOON_TELEFOON__TELEFOON
-go
-
-if exists (select 1
-   from sys.sysreferences r join sys.sysobjects o on (o.id = r.constid and o.type = 'F')
-   where r.fkeyid = object_id('TELEFOON_VAN_GEBRUIKER') and o.name = 'FK_TELEFOON_TELEFOON__GEBRUIKE')
-alter table TELEFOON_VAN_GEBRUIKER
-   drop constraint FK_TELEFOON_TELEFOON__GEBRUIKE
-go
-
-if exists (select 1
-   from sys.sysreferences r join sys.sysobjects o on (o.id = r.constid and o.type = 'F')
-   where r.fkeyid = object_id('VERGUNNING') and o.name = 'FK_VERGUNNI_PROJECT_V_PROJECT2')
+   where r.fkeyid = object_id('VERGUNNING') and o.name = 'FK_VERGUNNI_STATUS_VA_VERGUNNI')
 alter table VERGUNNING
-   drop constraint FK_VERGUNNI_PROJECT_V_PROJECT2
+   drop constraint FK_VERGUNNI_STATUS_VA_VERGUNNI
 go
 
 if exists (select 1
@@ -104,30 +48,37 @@ go
 
 if exists (select 1
    from sys.sysreferences r join sys.sysobjects o on (o.id = r.constid and o.type = 'F')
-   where r.fkeyid = object_id('VERGUNNING') and o.name = 'FK_VERGUNNI_VERGUNNIN_VERGUNNI2')
+   where r.fkeyid = object_id('VERGUNNING') and o.name = 'FK_VERGUNNI_VERGUNNIN_PROJECT')
 alter table VERGUNNING
-   drop constraint FK_VERGUNNI_VERGUNNIN_VERGUNNI2
+   drop constraint FK_VERGUNNI_VERGUNNIN_PROJECT
 go
 
 if exists (select 1
    from sys.sysreferences r join sys.sysobjects o on (o.id = r.constid and o.type = 'F')
-   where r.fkeyid = object_id('VERGUNNINGSINFORMATIE') and o.name = 'FK_VERGUNNI_GEBRUIKER_GEBRUIKE')
+   where r.fkeyid = object_id('VERGUNNINGSINFORMATIE') and o.name = 'FK_VERGUNNI_INFORMATI_PROJECT')
 alter table VERGUNNINGSINFORMATIE
-   drop constraint FK_VERGUNNI_GEBRUIKER_GEBRUIKE
+   drop constraint FK_VERGUNNI_INFORMATI_PROJECT
 go
 
 if exists (select 1
    from sys.sysreferences r join sys.sysobjects o on (o.id = r.constid and o.type = 'F')
-   where r.fkeyid = object_id('VERGUNNINGSINFORMATIE') and o.name = 'FK_VERGUNNI_PROJECT_V_PROJECT')
+   where r.fkeyid = object_id('VERGUNNINGSINFORMATIE') and o.name = 'FK_VERGUNNI_TOEGEVOEG_GEBRUIKE')
 alter table VERGUNNINGSINFORMATIE
-   drop constraint FK_VERGUNNI_PROJECT_V_PROJECT
+   drop constraint FK_VERGUNNI_TOEGEVOEG_GEBRUIKE
 go
 
 if exists (select 1
    from sys.sysreferences r join sys.sysobjects o on (o.id = r.constid and o.type = 'F')
-   where r.fkeyid = object_id('WERKNEMER') and o.name = 'FK_WERKNEME_WERKNEMER_PARTICUL')
+   where r.fkeyid = object_id('WERKNEMER') and o.name = 'FK_WERKNEME_FUNCTIE_V_ROL')
 alter table WERKNEMER
-   drop constraint FK_WERKNEME_WERKNEMER_PARTICUL
+   drop constraint FK_WERKNEME_FUNCTIE_V_ROL
+go
+
+if exists (select 1
+   from sys.sysreferences r join sys.sysobjects o on (o.id = r.constid and o.type = 'F')
+   where r.fkeyid = object_id('WERKNEMER') and o.name = 'FK_WERKNEME_WERKNEMER_GEBRUIKE')
+alter table WERKNEMER
+   drop constraint FK_WERKNEME_WERKNEMER_GEBRUIKE
 go
 
 if exists (select 1
@@ -139,9 +90,9 @@ go
 
 if exists (select 1
             from  sysobjects
-           where  id = object_id('ADRES')
+           where  id = object_id('ADRESGEGEVENS')
             and   type = 'U')
-   drop table ADRES
+   drop table ADRESGEGEVENS
 go
 
 if exists (select 1
@@ -170,6 +121,15 @@ if exists (select 1
 go
 
 if exists (select 1
+            from  sysindexes
+           where  id    = object_id('BEDRIJF')
+            and   name  = 'ADRES_VAN_BEDRIJF_FK'
+            and   indid > 0
+            and   indid < 255)
+   drop index BEDRIJF.ADRES_VAN_BEDRIJF_FK
+go
+
+if exists (select 1
             from  sysobjects
            where  id = object_id('BEDRIJF')
             and   type = 'U')
@@ -179,10 +139,19 @@ go
 if exists (select 1
             from  sysindexes
            where  id    = object_id('BEZWAAR')
-            and   name  = 'BEZWAAR_VAN_PROJECT_FK'
+            and   name  = 'BEZWAAR_OP_VERGUNNING_FK'
             and   indid > 0
             and   indid < 255)
-   drop index BEZWAAR.BEZWAAR_VAN_PROJECT_FK
+   drop index BEZWAAR.BEZWAAR_OP_VERGUNNING_FK
+go
+
+if exists (select 1
+            from  sysindexes
+           where  id    = object_id('BEZWAAR')
+            and   name  = 'BEZWAAR_DOOR_GEBRUIKER_FK'
+            and   indid > 0
+            and   indid < 255)
+   drop index BEZWAAR.BEZWAAR_DOOR_GEBRUIKER_FK
 go
 
 if exists (select 1
@@ -200,17 +169,46 @@ if exists (select 1
 go
 
 if exists (select 1
-            from  sysobjects
-           where  id = object_id('GEMEENTE_GEBRUIKER')
-            and   type = 'U')
-   drop table GEMEENTE_GEBRUIKER
+            from  sysindexes
+           where  id    = object_id('GEBRUIKERTEL')
+            and   name  = 'GEBRUIKERTEL2_FK'
+            and   indid > 0
+            and   indid < 255)
+   drop index GEBRUIKERTEL.GEBRUIKERTEL2_FK
+go
+
+if exists (select 1
+            from  sysindexes
+           where  id    = object_id('GEBRUIKERTEL')
+            and   name  = 'GEBRUIKERTEL_FK'
+            and   indid > 0
+            and   indid < 255)
+   drop index GEBRUIKERTEL.GEBRUIKERTEL_FK
 go
 
 if exists (select 1
             from  sysobjects
-           where  id = object_id('PARTICULIER')
+           where  id = object_id('GEBRUIKERTEL')
             and   type = 'U')
-   drop table PARTICULIER
+   drop table GEBRUIKERTEL
+go
+
+if exists (select 1
+            from  sysindexes
+           where  id    = object_id('PROJECT')
+            and   name  = 'PROJECT_GESTART_DOOR_FK'
+            and   indid > 0
+            and   indid < 255)
+   drop index PROJECT.PROJECT_GESTART_DOOR_FK
+go
+
+if exists (select 1
+            from  sysindexes
+           where  id    = object_id('PROJECT')
+            and   name  = 'AUTEUR_VAN_PROJECT_FK'
+            and   indid > 0
+            and   indid < 255)
+   drop index PROJECT.AUTEUR_VAN_PROJECT_FK
 go
 
 if exists (select 1
@@ -218,38 +216,6 @@ if exists (select 1
            where  id = object_id('PROJECT')
             and   type = 'U')
    drop table PROJECT
-go
-
-if exists (select 1
-            from  sysindexes
-           where  id    = object_id('PROJECTROL_VAN_GEBRUIKER')
-            and   name  = 'GEBRUIKER_ROL_VAN_PROJECT2_FK'
-            and   indid > 0
-            and   indid < 255)
-   drop index PROJECTROL_VAN_GEBRUIKER.GEBRUIKER_ROL_VAN_PROJECT2_FK
-go
-
-if exists (select 1
-            from  sysindexes
-           where  id    = object_id('PROJECTROL_VAN_GEBRUIKER')
-            and   name  = 'GEBRUIKER_ROL_VAN_PROJECT_FK'
-            and   indid > 0
-            and   indid < 255)
-   drop index PROJECTROL_VAN_GEBRUIKER.GEBRUIKER_ROL_VAN_PROJECT_FK
-go
-
-if exists (select 1
-            from  sysobjects
-           where  id = object_id('PROJECTROL_VAN_GEBRUIKER')
-            and   type = 'U')
-   drop table PROJECTROL_VAN_GEBRUIKER
-go
-
-if exists (select 1
-            from  sysobjects
-           where  id = object_id('RECHT')
-            and   type = 'U')
-   drop table RECHT
 go
 
 if exists (select 1
@@ -268,27 +234,27 @@ go
 
 if exists (select 1
             from  sysindexes
-           where  id    = object_id('TELEFOON_VAN_GEBRUIKER')
-            and   name  = 'TELEFOON_VAN_GEBRUIKER2_FK'
+           where  id    = object_id('TELEFOON_VAN_BEDRIJF')
+            and   name  = 'TELEFOON_VAN_BEDRIJF2_FK'
             and   indid > 0
             and   indid < 255)
-   drop index TELEFOON_VAN_GEBRUIKER.TELEFOON_VAN_GEBRUIKER2_FK
+   drop index TELEFOON_VAN_BEDRIJF.TELEFOON_VAN_BEDRIJF2_FK
 go
 
 if exists (select 1
             from  sysindexes
-           where  id    = object_id('TELEFOON_VAN_GEBRUIKER')
-            and   name  = 'TELEFOON_VAN_GEBRUIKER_FK'
+           where  id    = object_id('TELEFOON_VAN_BEDRIJF')
+            and   name  = 'TELEFOON_VAN_BEDRIJF_FK'
             and   indid > 0
             and   indid < 255)
-   drop index TELEFOON_VAN_GEBRUIKER.TELEFOON_VAN_GEBRUIKER_FK
+   drop index TELEFOON_VAN_BEDRIJF.TELEFOON_VAN_BEDRIJF_FK
 go
 
 if exists (select 1
             from  sysobjects
-           where  id = object_id('TELEFOON_VAN_GEBRUIKER')
+           where  id = object_id('TELEFOON_VAN_BEDRIJF')
             and   type = 'U')
-   drop table TELEFOON_VAN_GEBRUIKER
+   drop table TELEFOON_VAN_BEDRIJF
 go
 
 if exists (select 1
@@ -303,19 +269,19 @@ go
 if exists (select 1
             from  sysindexes
            where  id    = object_id('VERGUNNING')
-            and   name  = 'VERGUNNINGSTATUS_VAN_VERGUNNING_FK'
+            and   name  = 'STATUS_VAN_VERGUNNING_FK'
             and   indid > 0
             and   indid < 255)
-   drop index VERGUNNING.VERGUNNINGSTATUS_VAN_VERGUNNING_FK
+   drop index VERGUNNING.STATUS_VAN_VERGUNNING_FK
 go
 
 if exists (select 1
             from  sysindexes
            where  id    = object_id('VERGUNNING')
-            and   name  = 'VERGUNNINGSTYPE_VAN_VERGUNNING_FK'
+            and   name  = 'VERGUNNINGSTYPE_FK'
             and   indid > 0
             and   indid < 255)
-   drop index VERGUNNING.VERGUNNINGSTYPE_VAN_VERGUNNING_FK
+   drop index VERGUNNING.VERGUNNINGSTYPE_FK
 go
 
 if exists (select 1
@@ -328,19 +294,10 @@ go
 if exists (select 1
             from  sysindexes
            where  id    = object_id('VERGUNNINGSINFORMATIE')
-            and   name  = 'GEBRUIKER_VAN_VERGUNNINGSINFORMATIE_FK'
+            and   name  = 'TOEGEVOEGD_DOOR_FK'
             and   indid > 0
             and   indid < 255)
-   drop index VERGUNNINGSINFORMATIE.GEBRUIKER_VAN_VERGUNNINGSINFORMATIE_FK
-go
-
-if exists (select 1
-            from  sysindexes
-           where  id    = object_id('VERGUNNINGSINFORMATIE')
-            and   name  = 'VERGUNNINGSINFORMATIE_VAN_PROJECT_FK'
-            and   indid > 0
-            and   indid < 255)
-   drop index VERGUNNINGSINFORMATIE.VERGUNNINGSINFORMATIE_VAN_PROJECT_FK
+   drop index VERGUNNINGSINFORMATIE.TOEGEVOEGD_DOOR_FK
 go
 
 if exists (select 1
@@ -374,15 +331,6 @@ if exists (select 1
 go
 
 if exists (select 1
-            from  sysindexes
-           where  id    = object_id('WERKNEMER')
-            and   name  = 'WERKNEMER_FK'
-            and   indid > 0
-            and   indid < 255)
-   drop index WERKNEMER.WERKNEMER_FK
-go
-
-if exists (select 1
             from  sysobjects
            where  id = object_id('WERKNEMER')
             and   type = 'U')
@@ -397,8 +345,8 @@ if exists(select 1 from systypes where name='AANGEMAAKTOP')
    drop type AANGEMAAKTOP
 go
 
-if exists(select 1 from systypes where name='ACHTERNAAM')
-   drop type ACHTERNAAM
+if exists(select 1 from systypes where name='ACHERNAAM')
+   drop type ACHERNAAM
 go
 
 if exists(select 1 from systypes where name='ADRESID')
@@ -511,14 +459,6 @@ go
 
 if exists(select 1 from systypes where name='PROJECTID')
    drop type PROJECTID
-go
-
-if exists(select 1 from systypes where name='ROL')
-   drop type ROL
-go
-
-if exists(select 1 from systypes where name='ROLTYPE')
-   drop type ROLTYPE
 go
 
 if exists(select 1 from systypes where name='STATUS')
@@ -656,9 +596,9 @@ execute sp_bindrule R_AANGEMAAKTOP, AANGEMAAKTOP
 go
 
 /*==============================================================*/
-/* Domain: ACHTERNAAM                                           */
+/* Domain: ACHERNAAM                                            */
 /*==============================================================*/
-create type ACHTERNAAM
+create type ACHERNAAM
    from varchar(255)
 go
 
@@ -762,7 +702,7 @@ go
 /* Domain: GEBOORTEDATUM                                        */
 /*==============================================================*/
 create type GEBOORTEDATUM
-   from datetime
+   from date
 go
 
 execute sp_bindrule R_GEBOORTEDATUM, GEBOORTEDATUM
@@ -828,20 +768,6 @@ go
 /*==============================================================*/
 create type PROJECTID
    from int
-go
-
-/*==============================================================*/
-/* Domain: ROL                                                  */
-/*==============================================================*/
-create type ROL
-   from varchar(55)
-go
-
-/*==============================================================*/
-/* Domain: ROLTYPE                                              */
-/*==============================================================*/
-create type ROLTYPE
-   from varchar(55)
 go
 
 /*==============================================================*/
@@ -932,16 +858,15 @@ create type WERKZAAMHEID
 go
 
 /*==============================================================*/
-/* Table: ADRES                                                 */
+/* Table: ADRESGEGEVENS                                         */
 /*==============================================================*/
-create table ADRES (
-   ADRESID              ADRESID              not null,
-   POSTCODE             POSTCODE             not null,
-   HUISNUMMER           HUISNUMMER           not null 
-      constraint CKC_HUISNUMMER_ADRES check (HUISNUMMER between 00000001 and 99999999),
-   TOEVOEGING           TOEVOEGING           null,
-   constraint PK_ADRES primary key (ADRESID),
-   constraint AK_IDENTIFIER_2_ADRES unique (POSTCODE, HUISNUMMER, TOEVOEGING)
+create table ADRESGEGEVENS (
+   ADRESID              int                  identity,
+   POSTCODE             varchar(6)           not null,
+   HUISNUMMER           numeric(5,0)         not null,
+   TOEVOEGING           varchar(5)           null,
+   constraint PK_ADRESGEGEVENS primary key (ADRESID),
+   constraint AK_IDENTIFIER_2_ADRESGEG unique (POSTCODE, HUISNUMMER, TOEVOEGING)
 )
 go
 
@@ -949,8 +874,8 @@ go
 /* Table: ADRES_VAN_GEBRUIKER                                   */
 /*==============================================================*/
 create table ADRES_VAN_GEBRUIKER (
-   ADRESID              ADRESID              not null,
-   GEBRUIKERSNAAM       GEBRUIKERSNAAM       not null,
+   ADRESID              int                  not null,
+   GEBRUIKERSNAAM       varchar(255)         not null,
    constraint PK_ADRES_VAN_GEBRUIKER primary key (ADRESID, GEBRUIKERSNAAM)
 )
 go
@@ -979,134 +904,146 @@ go
 /* Table: BEDRIJF                                               */
 /*==============================================================*/
 create table BEDRIJF (
-   GEBRUIKERSNAAM       GEBRUIKERSNAAM       not null,
-   KVKNUMMER            KVKNUMMER            not null,
-   BEDRIJFSNAAM         BEDRIJFSNAAM         not null,
-   constraint PK_BEDRIJF primary key (GEBRUIKERSNAAM)
+   KVKNUMMER            numeric(8,0)         not null,
+   ADRESID              int                  not null,
+   BEDRIJFSNAAM         varchar(255)         not null,
+   BEDRIJFSWACHTWOORD   varchar(255)         not null,
+   constraint PK_BEDRIJF primary key (KVKNUMMER)
 )
+go
+
+/*==============================================================*/
+/* Index: ADRES_VAN_BEDRIJF_FK                                  */
+/*==============================================================*/
+
+
+
+
+create nonclustered index ADRES_VAN_BEDRIJF_FK on BEDRIJF (ADRESID ASC)
 go
 
 /*==============================================================*/
 /* Table: BEZWAAR                                               */
 /*==============================================================*/
 create table BEZWAAR (
-   PROJECTID            PROJECTID            not null,
-   BEZWAARREDEN         BEZWAARREDEN         not null,
-   BESLUIT              BEZWAARBESLUIT       null,
-   BESLUITREDEN         BESLUITREDEN         null
+   BEZWAARID            int                  identity,
+   GEBRUIKERSNAAM       varchar(255)         not null,
+   VERGUNNINGSID        int                  not null,
+   BEZWAARREDEN         varchar(4000)        not null,
+   BESLUIT              varchar(30)          null,
+   BESLUITREDEN         varchar(4000)        null,
+   constraint PK_BEZWAAR primary key (BEZWAARID),
+   constraint AK_KEY_2_BEZWAAR unique (GEBRUIKERSNAAM, VERGUNNINGSID)
 )
 go
 
 /*==============================================================*/
-/* Index: BEZWAAR_VAN_PROJECT_FK                                */
+/* Index: BEZWAAR_DOOR_GEBRUIKER_FK                             */
 /*==============================================================*/
 
 
 
 
-create nonclustered index BEZWAAR_VAN_PROJECT_FK on BEZWAAR (PROJECTID ASC)
+create nonclustered index BEZWAAR_DOOR_GEBRUIKER_FK on BEZWAAR (GEBRUIKERSNAAM ASC)
+go
+
+/*==============================================================*/
+/* Index: BEZWAAR_OP_VERGUNNING_FK                              */
+/*==============================================================*/
+
+
+
+
+create nonclustered index BEZWAAR_OP_VERGUNNING_FK on BEZWAAR (VERGUNNINGSID ASC)
 go
 
 /*==============================================================*/
 /* Table: GEBRUIKER                                             */
 /*==============================================================*/
 create table GEBRUIKER (
-   GEBRUIKERSNAAM       GEBRUIKERSNAAM       not null,
-   WACHTWOORD           WACHTWOORD           not null,
-   MAILADRES            MAILADRES            not null,
+   GEBRUIKERSNAAM       varchar(255)         not null,
+   WACHTWOORD           varchar(255)         not null,
+   VOORNAAM             varchar(100)         not null,
+   TUSSENVOEGSEL        varchar(25)          null,
+   ACHTERNAAM           varchar(255)         not null,
+   GEBOORTEDATUM        date                 not null,
+   GESLACHT             char(1)              not null,
+   MAILADRES            varchar(255)         not null,
    constraint PK_GEBRUIKER primary key (GEBRUIKERSNAAM)
 )
 go
 
 /*==============================================================*/
-/* Table: GEMEENTE_GEBRUIKER                                    */
+/* Table: GEBRUIKERTEL                                          */
 /*==============================================================*/
-create table GEMEENTE_GEBRUIKER (
-   GEBRUIKERSNAAM       GEBRUIKERSNAAM       not null,
-   RECHTNAAM            varchar(255)         null,
-   constraint PK_GEMEENTE_GEBRUIKER primary key (GEBRUIKERSNAAM)
+create table GEBRUIKERTEL (
+   TELEFOONNUMMER       varchar(20)          not null,
+   GEBRUIKERSNAAM       varchar(255)         not null,
+   constraint PK_GEBRUIKERTEL primary key (TELEFOONNUMMER, GEBRUIKERSNAAM)
 )
 go
 
 /*==============================================================*/
-/* Table: PARTICULIER                                           */
+/* Index: GEBRUIKERTEL_FK                                       */
 /*==============================================================*/
-create table PARTICULIER (
-   GEBRUIKERSNAAM       GEBRUIKERSNAAM       not null,
-   VOORNAAM             VOORNAAM             not null,
-   TUSSENVOEGSEL        TUSSENVOEGSEL        null,
-   ACHTERNAAM           ACHTERNAAM           not null,
-   GEBOORTEDATUM        GEBOORTEDATUM        not null 
-      constraint CKC_GEBOORTEDATUM_PARTICUL check (GEBOORTEDATUM between '01-01-1900' and 'add_months(sysdate, - (18*12)'),
-   GESLACHT             GESLACHT             not null,
-   constraint PK_PARTICULIER primary key (GEBRUIKERSNAAM)
-)
+
+
+
+
+create nonclustered index GEBRUIKERTEL_FK on GEBRUIKERTEL (TELEFOONNUMMER ASC)
+go
+
+/*==============================================================*/
+/* Index: GEBRUIKERTEL2_FK                                      */
+/*==============================================================*/
+
+
+
+
+create nonclustered index GEBRUIKERTEL2_FK on GEBRUIKERTEL (GEBRUIKERSNAAM ASC)
 go
 
 /*==============================================================*/
 /* Table: PROJECT                                               */
 /*==============================================================*/
 create table PROJECT (
-   PROJECTID            PROJECTID            not null,
-   AANGEMAAKTOP         AANGEMAAKTOP         not null,
-   WERKZAAMHEID         WERKZAAMHEID         not null,
-   XCOORDINAAT          COORDINAAT           not null,
-   YCOORDINAAT          COORDINAAT           not null,
+   PROJECTID            int                  identity,
+   KVKNUMMER            numeric(8,0)         null,
+   GEBRUIKERSNAAM       varchar(255)         not null,
+   AANGEMAAKTOP         datetime             not null,
+   WERKZAAMHEID         varchar(4000)        not null,
+   XCOORDINAAT          float                not null,
+   YCOORDINAAT          float                not null,
    constraint PK_PROJECT primary key (PROJECTID)
 )
 go
 
 /*==============================================================*/
-/* Table: PROJECTROL_VAN_GEBRUIKER                              */
+/* Index: AUTEUR_VAN_PROJECT_FK                                 */
 /*==============================================================*/
-create table PROJECTROL_VAN_GEBRUIKER (
-   GEBRUIKERSNAAM       GEBRUIKERSNAAM       not null,
-   PROJECTID            PROJECTID            not null,
-   ROLNAAM              varchar(255)         null,
-   DATUMAANVRAAG        date                 null,
-   DATUMUITGAVE         date                 null,
-   AUTOMATISCHTOEGEVOEGD boolean              null,
-   constraint PK_PROJECTROL_VAN_GEBRUIKER primary key (GEBRUIKERSNAAM, PROJECTID)
-)
+
+
+
+
+create nonclustered index AUTEUR_VAN_PROJECT_FK on PROJECT (GEBRUIKERSNAAM ASC)
 go
 
 /*==============================================================*/
-/* Index: GEBRUIKER_ROL_VAN_PROJECT_FK                          */
+/* Index: PROJECT_GESTART_DOOR_FK                               */
 /*==============================================================*/
 
 
 
 
-create nonclustered index GEBRUIKER_ROL_VAN_PROJECT_FK on PROJECTROL_VAN_GEBRUIKER (GEBRUIKERSNAAM ASC)
-go
-
-/*==============================================================*/
-/* Index: GEBRUIKER_ROL_VAN_PROJECT2_FK                         */
-/*==============================================================*/
-
-
-
-
-create nonclustered index GEBRUIKER_ROL_VAN_PROJECT2_FK on PROJECTROL_VAN_GEBRUIKER (PROJECTID ASC)
-go
-
-/*==============================================================*/
-/* Table: RECHT                                                 */
-/*==============================================================*/
-create table RECHT (
-   RECHTNAAM            varchar(255)         not null,
-   RECHTBESCHRIJVING    varchar(4000)        null,
-   constraint PK_RECHT primary key (RECHTNAAM)
-)
+create nonclustered index PROJECT_GESTART_DOOR_FK on PROJECT (KVKNUMMER ASC)
 go
 
 /*==============================================================*/
 /* Table: ROL                                                   */
 /*==============================================================*/
 create table ROL (
-   ROLNAAM              varchar(255)         not null,
-   ROLBESCHRIJVING      varchar(4000)        null,
-   constraint PK_ROL primary key (ROLNAAM)
+   TYPE                 varchar(255)         not null,
+   constraint PK_ROL primary key (TYPE)
 )
 go
 
@@ -1114,76 +1051,75 @@ go
 /* Table: TELEFOON                                              */
 /*==============================================================*/
 create table TELEFOON (
-   TELEFOONNUMMER       TELEFOONNUMMER       not null,
+   TELEFOONNUMMER       varchar(20)          not null,
    constraint PK_TELEFOON primary key (TELEFOONNUMMER)
 )
 go
 
 /*==============================================================*/
-/* Table: TELEFOON_VAN_GEBRUIKER                                */
+/* Table: TELEFOON_VAN_BEDRIJF                                  */
 /*==============================================================*/
-create table TELEFOON_VAN_GEBRUIKER (
-   TELEFOONNUMMER       TELEFOONNUMMER       not null,
-   GEBRUIKERSNAAM       GEBRUIKERSNAAM       not null,
-   constraint PK_TELEFOON_VAN_GEBRUIKER primary key (TELEFOONNUMMER, GEBRUIKERSNAAM)
+create table TELEFOON_VAN_BEDRIJF (
+   TELEFOONNUMMER       varchar(20)          not null,
+   KVKNUMMER            numeric(8,0)         not null,
+   constraint PK_TELEFOON_VAN_BEDRIJF primary key (TELEFOONNUMMER, KVKNUMMER)
 )
 go
 
 /*==============================================================*/
-/* Index: TELEFOON_VAN_GEBRUIKER_FK                             */
+/* Index: TELEFOON_VAN_BEDRIJF_FK                               */
 /*==============================================================*/
 
 
 
 
-create nonclustered index TELEFOON_VAN_GEBRUIKER_FK on TELEFOON_VAN_GEBRUIKER (TELEFOONNUMMER ASC)
+create nonclustered index TELEFOON_VAN_BEDRIJF_FK on TELEFOON_VAN_BEDRIJF (TELEFOONNUMMER ASC)
 go
 
 /*==============================================================*/
-/* Index: TELEFOON_VAN_GEBRUIKER2_FK                            */
+/* Index: TELEFOON_VAN_BEDRIJF2_FK                              */
 /*==============================================================*/
 
 
 
 
-create nonclustered index TELEFOON_VAN_GEBRUIKER2_FK on TELEFOON_VAN_GEBRUIKER (GEBRUIKERSNAAM ASC)
+create nonclustered index TELEFOON_VAN_BEDRIJF2_FK on TELEFOON_VAN_BEDRIJF (KVKNUMMER ASC)
 go
 
 /*==============================================================*/
 /* Table: VERGUNNING                                            */
 /*==============================================================*/
 create table VERGUNNING (
-   VERGUNNINGSID        VERGUNNINGSID        not null,
-   VERGUNNINGSNAAM      VERGUNNINGSNAAM      not null,
-   STATUS               STATUS               not null 
-      constraint CKC_STATUS_VERGUNNI2 check (STATUS in ('Aangevraagd','Afwewezen','Uitgegeven','Verlopen','Bezwaar')),
-   PROJECTID            PROJECTID            not null,
-   OMSCHRIJVING         OMSCHRIJVING         not null,
-   DATUMAANVRAAG        DATUMAANVRAAG        not null,
-   DATUMUITGAVE         DATUMUITGAVE         null,
-   DATUMVERLOOP         DATUMVERLOOP         null,
+   VERGUNNINGSID        int                  identity,
+   VERGUNNINGSNAAM      varchar(255)         not null,
+   STATUS               varchar(255)         not null,
+   PROJECTID            int                  not null,
+   OMSCHRIJVING         varchar(4000)        not null,
+   DATUMAANVRAAG        datetime             not null,
+   DATUMUITGAVE         datetime             null,
+   DATUMVERLOOP         datetime             null,
    constraint PK_VERGUNNING primary key (VERGUNNINGSID)
 )
 go
 
 /*==============================================================*/
-/* Index: VERGUNNINGSTYPE_VAN_VERGUNNING_FK                     */
+/* Index: VERGUNNINGSTYPE_FK                                    */
 /*==============================================================*/
 
 
 
 
-create nonclustered index VERGUNNINGSTYPE_VAN_VERGUNNING_FK on VERGUNNING (VERGUNNINGSNAAM ASC)
+create nonclustered index VERGUNNINGSTYPE_FK on VERGUNNING (VERGUNNINGSNAAM ASC)
 go
 
 /*==============================================================*/
-/* Index: VERGUNNINGSTATUS_VAN_VERGUNNING_FK                    */
+/* Index: STATUS_VAN_VERGUNNING_FK                              */
 /*==============================================================*/
 
 
 
 
-create nonclustered index VERGUNNINGSTATUS_VAN_VERGUNNING_FK on VERGUNNING (STATUS ASC)
+create nonclustered index STATUS_VAN_VERGUNNING_FK on VERGUNNING (STATUS ASC)
 go
 
 /*==============================================================*/
@@ -1200,42 +1136,31 @@ go
 /* Table: VERGUNNINGSINFORMATIE                                 */
 /*==============================================================*/
 create table VERGUNNINGSINFORMATIE (
-   PROJECTID            PROJECTID            not null,
-   VOLGNUMMER           VOLGNUMMER           not null,
-   GEBRUIKERSNAAM       GEBRUIKERSNAAM       not null,
-   UITLEG               UITLEG               not null,
-   DATUM                DATUMINFORMATIETOEGEVOEGD not null,
-   LOCATIE              BESTANDSLOCATIE      null,
+   PROJECTID            int                  not null,
+   VOLGNUMMER           int                  not null,
+   GEBRUIKERSNAAM       varchar(255)         not null,
+   UITLEG               varchar(4000)        not null,
+   DATUM                datetime             not null,
+   LOCATIE              varchar(255)         null,
    constraint PK_VERGUNNINGSINFORMATIE primary key (PROJECTID, VOLGNUMMER)
 )
 go
 
 /*==============================================================*/
-/* Index: VERGUNNINGSINFORMATIE_VAN_PROJECT_FK                  */
+/* Index: TOEGEVOEGD_DOOR_FK                                    */
 /*==============================================================*/
 
 
 
 
-create nonclustered index VERGUNNINGSINFORMATIE_VAN_PROJECT_FK on VERGUNNINGSINFORMATIE (PROJECTID ASC)
-go
-
-/*==============================================================*/
-/* Index: GEBRUIKER_VAN_VERGUNNINGSINFORMATIE_FK                */
-/*==============================================================*/
-
-
-
-
-create nonclustered index GEBRUIKER_VAN_VERGUNNINGSINFORMATIE_FK on VERGUNNINGSINFORMATIE (GEBRUIKERSNAAM ASC)
+create nonclustered index TOEGEVOEGD_DOOR_FK on VERGUNNINGSINFORMATIE (GEBRUIKERSNAAM ASC)
 go
 
 /*==============================================================*/
 /* Table: VERGUNNINGSTATUS                                      */
 /*==============================================================*/
 create table VERGUNNINGSTATUS (
-   STATUS               STATUS               not null 
-      constraint CKC_STATUS_VERGUNNI check (STATUS in ('Aangevraagd','Afwewezen','Uitgegeven','Verlopen','Bezwaar')),
+   STATUS               varchar(255)         not null,
    constraint PK_VERGUNNINGSTATUS primary key (STATUS)
 )
 go
@@ -1244,7 +1169,7 @@ go
 /* Table: VERGUNNINGSTYPE                                       */
 /*==============================================================*/
 create table VERGUNNINGSTYPE (
-   VERGUNNINGSNAAM      VERGUNNINGSNAAM      not null,
+   VERGUNNINGSNAAM      varchar(255)         not null,
    constraint PK_VERGUNNINGSTYPE primary key (VERGUNNINGSNAAM)
 )
 go
@@ -1253,20 +1178,11 @@ go
 /* Table: WERKNEMER                                             */
 /*==============================================================*/
 create table WERKNEMER (
-   PAR_GEBRUIKERSNAAM   GEBRUIKERSNAAM       not null,
-   BED_GEBRUIKERSNAAM   GEBRUIKERSNAAM       not null,
-   constraint PK_WERKNEMER primary key (PAR_GEBRUIKERSNAAM, BED_GEBRUIKERSNAAM)
+   GEBRUIKERSNAAM       varchar(255)         not null,
+   KVKNUMMER            numeric(8,0)         not null,
+   TYPE                 varchar(255)         null,
+   constraint PK_WERKNEMER primary key (GEBRUIKERSNAAM, KVKNUMMER)
 )
-go
-
-/*==============================================================*/
-/* Index: WERKNEMER_FK                                          */
-/*==============================================================*/
-
-
-
-
-create nonclustered index WERKNEMER_FK on WERKNEMER (PAR_GEBRUIKERSNAAM ASC)
 go
 
 /*==============================================================*/
@@ -1276,101 +1192,66 @@ go
 
 
 
-create nonclustered index WERKNEMER2_FK on WERKNEMER (BED_GEBRUIKERSNAAM ASC)
-go
-
-alter table ADRES_VAN_GEBRUIKER
-   add constraint FK_ADRES_VA_ADRES_VAN_ADRES foreign key (ADRESID)
-      references ADRES (ADRESID)
-go
-
-alter table ADRES_VAN_GEBRUIKER
-   add constraint FK_ADRES_VA_ADRES_VAN_GEBRUIKE foreign key (GEBRUIKERSNAAM)
-      references GEBRUIKER (GEBRUIKERSNAAM)
+create nonclustered index WERKNEMER2_FK on WERKNEMER (KVKNUMMER ASC)
 go
 
 alter table BEDRIJF
-   add constraint FK_BEDRIJF_GEBRUIKER_GEBRUIKE foreign key (GEBRUIKERSNAAM)
+   add constraint FK_BEDRIJF_ADRES_VAN_ADRESGEG foreign key (ADRESID)
+      references ADRESGEGEVENS (ADRESID)
+go
+
+alter table BEZWAAR
+   add constraint FK_BEZWAAR_BEZWAAR_D_GEBRUIKE foreign key (GEBRUIKERSNAAM)
       references GEBRUIKER (GEBRUIKERSNAAM)
 go
 
 alter table BEZWAAR
-   add constraint FK_BEZWAAR_PROJECT_V_PROJECT foreign key (PROJECTID)
-      references PROJECT (PROJECTID)
+   add constraint FK_BEZWAAR_BEZWAAR_O_VERGUNNI foreign key (VERGUNNINGSID)
+      references VERGUNNING (VERGUNNINGSID)
 go
 
-alter table GEMEENTE_GEBRUIKER
-   add constraint FK_GEMEENTE_REFERENCE_GEBRUIKE foreign key (GEBRUIKERSNAAM)
-      references GEBRUIKER (GEBRUIKERSNAAM)
-go
-
-alter table GEMEENTE_GEBRUIKER
-   add constraint FK_GEMEENTE_REFERENCE_RECHT foreign key (RECHTNAAM)
-      references RECHT (RECHTNAAM)
-go
-
-alter table PARTICULIER
-   add constraint FK_PARTICUL_GEBRUIKER_GEBRUIKE foreign key (GEBRUIKERSNAAM)
-      references GEBRUIKER (GEBRUIKERSNAAM)
-go
-
-alter table PROJECTROL_VAN_GEBRUIKER
-   add constraint FK_PROJECTR_PROJECTRO_GEBRUIKE foreign key (GEBRUIKERSNAAM)
-      references GEBRUIKER (GEBRUIKERSNAAM)
-go
-
-alter table PROJECTROL_VAN_GEBRUIKER
-   add constraint FK_PROJECTR_PROJECTRO_PROJECT foreign key (PROJECTID)
-      references PROJECT (PROJECTID)
-go
-
-alter table PROJECTROL_VAN_GEBRUIKER
-   add constraint FK_PROJECTR_REFERENCE_ROL foreign key (ROLNAAM)
-      references ROL (ROLNAAM)
-go
-
-alter table TELEFOON_VAN_GEBRUIKER
-   add constraint FK_TELEFOON_TELEFOON__TELEFOON foreign key (TELEFOONNUMMER)
-      references TELEFOON (TELEFOONNUMMER)
-go
-
-alter table TELEFOON_VAN_GEBRUIKER
-   add constraint FK_TELEFOON_TELEFOON__GEBRUIKE foreign key (GEBRUIKERSNAAM)
+alter table PROJECT
+   add constraint FK_PROJECT_AUTEUR_VA_GEBRUIKE foreign key (GEBRUIKERSNAAM)
       references GEBRUIKER (GEBRUIKERSNAAM)
 go
 
 alter table VERGUNNING
-   add constraint FK_VERGUNNI_PROJECT_V_PROJECT2 foreign key (PROJECTID)
-      references PROJECT (PROJECTID)
-go
-
-alter table VERGUNNING
-   add constraint FK_VERGUNNI_VERGUNNIN_VERGUNNI foreign key (STATUS)
+   add constraint FK_VERGUNNI_STATUS_VA_VERGUNNI foreign key (STATUS)
       references VERGUNNINGSTATUS (STATUS)
 go
 
 alter table VERGUNNING
-   add constraint FK_VERGUNNI_VERGUNNIN_VERGUNNI2 foreign key (VERGUNNINGSNAAM)
+   add constraint FK_VERGUNNI_VERGUNNIN_VERGUNNI foreign key (VERGUNNINGSNAAM)
       references VERGUNNINGSTYPE (VERGUNNINGSNAAM)
 go
 
-alter table VERGUNNINGSINFORMATIE
-   add constraint FK_VERGUNNI_GEBRUIKER_GEBRUIKE foreign key (GEBRUIKERSNAAM)
-      references GEBRUIKER (GEBRUIKERSNAAM)
-go
-
-alter table VERGUNNINGSINFORMATIE
-   add constraint FK_VERGUNNI_PROJECT_V_PROJECT foreign key (PROJECTID)
+alter table VERGUNNING
+   add constraint FK_VERGUNNI_VERGUNNIN_PROJECT foreign key (PROJECTID)
       references PROJECT (PROJECTID)
 go
 
-alter table WERKNEMER
-   add constraint FK_WERKNEME_WERKNEMER_PARTICUL foreign key (PAR_GEBRUIKERSNAAM)
-      references PARTICULIER (GEBRUIKERSNAAM)
+alter table VERGUNNINGSINFORMATIE
+   add constraint FK_VERGUNNI_INFORMATI_PROJECT foreign key (PROJECTID)
+      references PROJECT (PROJECTID)
+go
+
+alter table VERGUNNINGSINFORMATIE
+   add constraint FK_VERGUNNI_TOEGEVOEG_GEBRUIKE foreign key (GEBRUIKERSNAAM)
+      references GEBRUIKER (GEBRUIKERSNAAM)
 go
 
 alter table WERKNEMER
-   add constraint FK_WERKNEME_WERKNEMER_BEDRIJF foreign key (BED_GEBRUIKERSNAAM)
-      references BEDRIJF (GEBRUIKERSNAAM)
+   add constraint FK_WERKNEME_FUNCTIE_V_ROL foreign key (TYPE)
+      references ROL (TYPE)
+go
+
+alter table WERKNEMER
+   add constraint FK_WERKNEME_WERKNEMER_GEBRUIKE foreign key (GEBRUIKERSNAAM)
+      references GEBRUIKER (GEBRUIKERSNAAM)
+go
+
+alter table WERKNEMER
+   add constraint FK_WERKNEME_WERKNEMER_BEDRIJF foreign key (KVKNUMMER)
+      references BEDRIJF (KVKNUMMER)
 go
 
