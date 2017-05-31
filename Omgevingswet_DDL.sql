@@ -645,9 +645,6 @@ create rule R_GESLACHT as
       @column in ('M','V','O')
 go
 
-create rule R_TELEFOONNUMMER as
-      @column >= '8'
-go
 
 /*==============================================================*/
 /* Domain: AANGEMAAKTOP                                         */
@@ -766,7 +763,7 @@ go
 /* Domain: GEBOORTEDATUM                                        */
 /*==============================================================*/
 create type GEBOORTEDATUM
-   from datetime
+   from date
 go
 
 execute sp_bindrule R_GEBOORTEDATUM, GEBOORTEDATUM
@@ -869,9 +866,6 @@ create type TELEFOONNUMMER
    from varchar(20)
 go
 
-execute sp_bindrule R_TELEFOONNUMMER, TELEFOONNUMMER
-go
-
 /*==============================================================*/
 /* Domain: TOEVOEGING                                           */
 /*==============================================================*/
@@ -946,7 +940,7 @@ go
 /* Table: ADRES                                                 */
 /*==============================================================*/
 create table ADRES (
-   ADRESID              ADRESID              not null,
+   ADRESID              ADRESID              IDENTITY(1,1),
    POSTCODE             POSTCODE             not null,
    HUISNUMMER           HUISNUMMER           not null 
       constraint CKC_HUISNUMMER_ADRES check (HUISNUMMER between 00000001 and 99999999),
@@ -1003,10 +997,13 @@ go
 /* Table: BEZWAAR                                               */
 /*==============================================================*/
 create table BEZWAAR (
+   GEBRUIKERSNAAM		GEBRUIKERSNAAM		 not null,
    PROJECTID            PROJECTID            not null,
+   VERGUNNINGSID		VERGUNNINGSID		 null,
    BEZWAARREDEN         BEZWAARREDEN         not null,
    BESLUIT              BEZWAARBESLUIT       null,
-   BESLUITREDEN         BESLUITREDEN         null
+   BESLUITREDEN         BESLUITREDEN         null,
+   constraint PK_BEZWAAR PRIMARY KEY(GEBRUIKERSNAAM, PROJECTID)
 )
 go
 
@@ -1049,8 +1046,7 @@ create table PARTICULIER (
    VOORNAAM             VOORNAAM             not null,
    TUSSENVOEGSEL        TUSSENVOEGSEL        null,
    ACHTERNAAM           ACHTERNAAM           not null,
-   GEBOORTEDATUM        GEBOORTEDATUM        not null 
-      constraint CKC_GEBOORTEDATUM_PARTICUL check (GEBOORTEDATUM between '01-01-1900' and 'add_months(sysdate, - (18*12)'),
+   GEBOORTEDATUM        GEBOORTEDATUM        not null,
    GESLACHT             GESLACHT             not null,
    constraint PK_PARTICULIER primary key (GEBRUIKERSNAAM)
 )
@@ -1060,7 +1056,7 @@ go
 /* Table: PROJECT                                               */
 /*==============================================================*/
 create table PROJECT (
-   PROJECTID            PROJECTID            not null,
+   PROJECTID            PROJECTID            IDENTITY(1,1),
    PROJECTTITEL         PROJECTTITEL         not null,
    AANGEMAAKTOP         AANGEMAAKTOP         not null,
    WERKZAAMHEID         WERKZAAMHEID         not null,
@@ -1077,9 +1073,9 @@ create table PROJECTROL_VAN_GEBRUIKER (
    GEBRUIKERSNAAM       GEBRUIKERSNAAM       not null,
    PROJECTID            PROJECTID            not null,
    ROLNAAM              varchar(255)         not null,
-   DATUMAANVRAAG        date                 not null,
-   DATUMUITGAVE         date                 null,
-   AUTOMATISCHTOEGEVOEGD boolean              not null,
+   DATUMAANVRAAG        datetime                 not null,
+   DATUMUITGAVE         datetime                 null,
+   AUTOMATISCHTOEGEVOEGD bit              not null,
    constraint PK_PROJECTROL_VAN_GEBRUIKER primary key (GEBRUIKERSNAAM, PROJECTID)
 )
 go
@@ -1313,6 +1309,17 @@ alter table BEZWAAR
       references PROJECT (PROJECTID)
 go
 
+alter table BEZWAAR
+	add constraint FK_BEZWAAR_GEBRUIKERSNAAM foreign key (GEBRUIKERSNAAM)
+		references GEBRUIKER (GEBRUIKERSNAAM)
+
+alter table BEZWAAR
+	add constraint FK_BEZWAAR_VERGUNNING foreign key (VERGUNNINGSID)
+		references VERGUNNING (VERGUNNINGSID)
+
+alter table BEZWAAR
+	add constraint UN_BEZWAAR_VERGUNNING unique (GEBRUIKERSNAAM, PROJECTID, VERGUNNINGSID)
+
 alter table GEMEENTE_GEBRUIKER
    add constraint FK_GEMEENTE_REFERENCE_GEBRUIKE foreign key (GEBRUIKERSNAAM)
       references GEBRUIKER (GEBRUIKERSNAAM)
@@ -1323,9 +1330,9 @@ alter table GEMEENTE_GEBRUIKER
       references RECHT (RECHTNAAM)
 go
 
-alter table PARTICULIER
+alter table GEBRUIKER
    add constraint FK_PARTICUL_GEBRUIKER_GEBRUIKE foreign key (GEBRUIKERSNAAM)
-      references GEBRUIKER (GEBRUIKERSNAAM)
+      references PARTICULIER (GEBRUIKERSNAAM)
 go
 
 alter table PROJECTROL_VAN_GEBRUIKER
