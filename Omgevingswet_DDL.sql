@@ -139,9 +139,9 @@ go
 
 if exists (select 1
             from  sysobjects
-           where  id = object_id('ADRES')
+           where  id = object_id('ADRESGEGEVENS')
             and   type = 'U')
-   drop table ADRES
+   drop table ADRESGEGEVENS
 go
 
 if exists (select 1
@@ -943,10 +943,10 @@ create type WERKZAAMHEID
 go
 
 /*==============================================================*/
-/* Table: ADRES                                                 */
+/* Table: ADRESGEGEVENS                                                 */
 /*==============================================================*/
-create table ADRES (
-   ADRESID              ADRESID              not null,
+create table ADRESGEGEVENS (
+   ADRESID              ADRESID              not null identity,
    POSTCODE             POSTCODE             not null,
    HUISNUMMER           HUISNUMMER           not null 
       constraint CKC_HUISNUMMER_ADRES check (HUISNUMMER between 00000001 and 99999999),
@@ -1079,7 +1079,7 @@ create table PROJECTROL_VAN_GEBRUIKER (
    ROLNAAM              varchar(255)         not null,
    DATUMAANVRAAG        date                 not null,
    DATUMUITGAVE         date                 null,
-   AUTOMATISCHTOEGEVOEGD boolean              not null,
+   AUTOMATISCHTOEGEVOEGD bit              not null,
    constraint PK_PROJECTROL_VAN_GEBRUIKER primary key (GEBRUIKERSNAAM, PROJECTID)
 )
 go
@@ -1295,7 +1295,7 @@ go
 
 alter table ADRES_VAN_GEBRUIKER
    add constraint FK_ADRES_VA_ADRES_VAN_ADRES foreign key (ADRESID)
-      references ADRES (ADRESID)
+      references ADRESGEGEVENS (ADRESID)
 go
 
 alter table ADRES_VAN_GEBRUIKER
