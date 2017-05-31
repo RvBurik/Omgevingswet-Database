@@ -2,6 +2,8 @@
 /* DBMS name:      Microsoft SQL Server 2014                    */
 /* Created on:     31-5-2017 11:47:48                           */
 /*==============================================================*/
+DROP DATABASE OMGEVINGSWETLOCAL
+GO
 
 
 if exists (select 1
@@ -139,9 +141,9 @@ go
 
 if exists (select 1
             from  sysobjects
-           where  id = object_id('ADRES')
+           where  id = object_id('ADRESGEGEVENS')
             and   type = 'U')
-   drop table ADRES
+   drop table ADRESGEGEVENS
 go
 
 if exists (select 1
@@ -937,9 +939,9 @@ create type WERKZAAMHEID
 go
 
 /*==============================================================*/
-/* Table: ADRES                                                 */
+/* Table: ADRESGEGEVENS                                                 */
 /*==============================================================*/
-create table ADRES (
+create table ADRESGEGEVENS (
    ADRESID              ADRESID              IDENTITY(1,1),
    POSTCODE             POSTCODE             not null,
    HUISNUMMER           HUISNUMMER           not null 
@@ -1073,7 +1075,7 @@ create table PROJECTROL_VAN_GEBRUIKER (
    GEBRUIKERSNAAM       GEBRUIKERSNAAM       not null,
    PROJECTID            PROJECTID            not null,
    ROLNAAM              varchar(255)         not null,
-   DATUMAANVRAAG        datetime                 not null,
+   DATUMAANVRAAG        datetime             not null,
    DATUMUITGAVE         datetime                 null,
    AUTOMATISCHTOEGEVOEGD bit              not null,
    constraint PK_PROJECTROL_VAN_GEBRUIKER primary key (GEBRUIKERSNAAM, PROJECTID)
@@ -1291,7 +1293,7 @@ go
 
 alter table ADRES_VAN_GEBRUIKER
    add constraint FK_ADRES_VA_ADRES_VAN_ADRES foreign key (ADRESID)
-      references ADRES (ADRESID)
+      references ADRESGEGEVENS (ADRESID)
 go
 
 alter table ADRES_VAN_GEBRUIKER

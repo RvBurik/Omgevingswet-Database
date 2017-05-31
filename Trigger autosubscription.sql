@@ -1,8 +1,8 @@
 ALTER TABLE PROJECT
-ENABLE TRIGGER trAutomaticSubscription
+DROP trigger trAutomaticSubscription
 
-ALTER TRIGGER trAutomaticSubscription
-ON PROJECT
+CREATE TRIGGER trAutomaticSubscription
+ON PROJECTROL_VAN_GEBRUIKER
 
 AFTER INSERT, UPDATE
 AS
