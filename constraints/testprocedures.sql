@@ -1,9 +1,11 @@
-IF EXISTS (SELECT * FROM sys.procedures WHERE name = 'spTestInsertGebruiker') BEGIN
-	DROP PROCEDURE spTestInsertGebruiker
+USE Omgevingswet
+
+IF EXISTS (SELECT * FROM sys.procedures WHERE name = 'spTestInsertParticulier') BEGIN
+	DROP PROCEDURE spTestInsertParticulier
 END
 go
 
-CREATE PROCEDURE spTestInsertGebruiker
+CREATE PROCEDURE spTestInsertParticulier
   @gebruikersnaam VARCHAR(255) OUTPUT,
   @wachtwoord     VARCHAR(255),
   @voornaam       VARCHAR(100),
@@ -39,12 +41,14 @@ BEGIN
     IF (@geslacht IS NULL)
       SET @geslacht = CASE @row % 2
         WHEN 1 THEN 'M'
-        WHEN 0 THEN 'F'
+        WHEN 0 THEN 'V'
       END
     IF (@mailadres IS NULL)
       SET @mailadres = 'test' + CAST(@row AS VARCHAR) + '@mail.net'
-    INSERT INTO GEBRUIKER (GEBRUIKERSNAAM, WACHTWOORD, VOORNAAM, TUSSENVOEGSEL, ACHTERNAAM, GEBOORTEDATUM, GESLACHT, MAILADRES)
-      VALUES (@gebruikersnaam, @wachtwoord, @voornaam, @tussenvoegsel, @achternaam, @geboortedatum, @geslacht, @mailadres)
+    INSERT INTO GEBRUIKER (GEBRUIKERSNAAM, WACHTWOORD, MAILADRES)
+      VALUES (@gebruikersnaam, @wachtwoord, @mailadres)
+    INSERT INTO PARTICULIER (GEBRUIKERSNAAM, VOORNAAM, TUSSENVOEGSEL, ACHTERNAAM, GEBOORTEDATUM, GESLACHT)
+      VALUES (@gebruikersnaam, @voornaam, @tussenvoegsel, @achternaam, @geboortedatum, @geslacht)
   END TRY
   BEGIN catch
     IF (@trancount = 0)
@@ -83,13 +87,13 @@ BEGIN
     IF (@adresid IS NULL)
       SET @adresid = @maxid
     IF (@postcode IS NULL)
-      SET @postcode = RIGHT('0000' + CAST((@maxid % 1000) AS VARCHAR(4)), 4) + CHAR(65 + (@maxid / 1000) / 26) + CHAR(65 + (@maxid / 1000) % 26)
+      SET @postcode = RIGHT('0000' + CAST((@adresid % 1000) AS VARCHAR(4)), 4) + CHAR(65 + (@adresid / 1000) / 26) + CHAR(65 + (@adresid / 1000) % 26)
     IF (@huisnummer IS NULL)
-      SET @huisnummer = @maxid % 100
+      SET @huisnummer = @adresid % 100 + 1
     IF (@xcoordinaat IS NULL)
-      SET @xcoordinaat = @maxid + 50
+      SET @xcoordinaat = @adresid + 0.5
     IF (@ycoordinaat IS NULL)
-      SET @ycoordinaat = @maxid + 150
+      SET @ycoordinaat = @adresid + 0.15
     SET IDENTITY_INSERT ADRESGEGEVENS ON
     INSERT INTO ADRESGEGEVENS (ADRESID, POSTCODE, HUISNUMMER, TOEVOEGING, XCOORDINAAT, YCOORDINAAT)
       VALUES (@adresid, @postcode, @huisnummer, @toevoeging, @xcoordinaat, @ycoordinaat)
@@ -132,17 +136,17 @@ BEGIN
     IF (@projectid IS NULL)
       SET @projectid = @maxid
     IF (@projecttitel IS NULL)
-      SET @projecttitel = 'Testproject ' + CAST(@maxid AS VARCHAR)
+      SET @projecttitel = 'Testproject ' + CAST(@projectId AS VARCHAR)
     IF (@aangemaaktOp IS NULL)
       SET @aangemaaktOp = DATEADD(hour, @maxid, '2016-01-01')
       if (@aangemaaktOp > '2017-01-01')
         SET @aangemaaktOp = '2017-01-01'
     IF (@werkzaamheid IS NULL)
-      SET @werkzaamheid = 'Dit is project nummer ' + CAST(@maxid AS VARCHAR)
+      SET @werkzaamheid = 'Dit is een project met id ' + CAST(@projectId AS VARCHAR) + '.'
     IF (@xcoordinaat IS NULL)
-      SET @xcoordinaat = @maxid + 35
+      SET @xcoordinaat = @projectid + 0.35
     IF (@ycoordinaat IS NULL)
-      SET @ycoordinaat = @maxid + 105
+      SET @ycoordinaat = @projectid + 0.105
     SET IDENTITY_INSERT PROJECT ON
     INSERT INTO PROJECT (PROJECTID, PROJECTTITEL, AANGEMAAKTOP, WERKZAAMHEID, XCOORDINAAT, YCOORDINAAT)
       VALUES (@projectId, @projecttitel, @aangemaaktOp, @werkzaamheid, @xcoordinaat, @ycoordinaat)
@@ -157,27 +161,3 @@ BEGIN
   END CATCH
 END
 GO
-
-
-BEGIN TRANSACTION
-EXEC spTestInsertProject NULL, NULL, NULL, NULL, NULL, NULL
-EXEC spTestInsertProject NULL, NULL, NULL, NULL, NULL, NULL
-EXEC spTestInsertProject NULL, NULL, NULL, NULL, NULL, NULL
-SELECT * FROM PROJECT
-ROLLBACK TRANSACTION
-
-DECLARE @getal INT
-SET @getal = 200000
-WHILE @getal > 0 BEGIN
-  EXEC spTestInsertAdresgegevens NULL, NULL, NULL, NULL, NULL, NULL
-  SET @getal = @getal - 1
-END
-
-DELETE FROM ADRESGEGEVENS
-/*EXEC spTestInsertGebruiker 'Michiel', NULL, NULL, NULL, NULL, NULL, 'M', 'michiel@bos.net'
-EXEC spTestInsertGebruiker NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-EXEC spTestInsertGebruiker NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-EXEC spTestInsertGebruiker NULL, NULL, NULL, NULL, NULL, '2001-05-06', NULL, NULL
-EXEC spTestInsertGebruiker NULL, NULL, 'Peter', 'van', 'Pan', NULL, NULL, NULL
-SELECT * FROM GEBRUIKER*/
-
