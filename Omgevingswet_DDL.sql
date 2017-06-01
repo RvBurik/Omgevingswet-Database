@@ -1049,8 +1049,7 @@ create table PARTICULIER (
    VOORNAAM             VOORNAAM             not null,
    TUSSENVOEGSEL        TUSSENVOEGSEL        null,
    ACHTERNAAM           ACHTERNAAM           not null,
-   GEBOORTEDATUM        GEBOORTEDATUM        not null 
-      constraint CKC_GEBOORTEDATUM_PARTICUL check (GEBOORTEDATUM between '01-01-1900' and 'add_months(sysdate, - (18*12)'),
+   GEBOORTEDATUM        GEBOORTEDATUM        not null ,
    GESLACHT             GESLACHT             not null,
    constraint PK_PARTICULIER primary key (GEBRUIKERSNAAM)
 )
@@ -1060,7 +1059,7 @@ go
 /* Table: PROJECT                                               */
 /*==============================================================*/
 create table PROJECT (
-   PROJECTID            PROJECTID            not null,
+   PROJECTID            PROJECTID            not null identity,
    PROJECTTITEL         PROJECTTITEL         not null,
    AANGEMAAKTOP         AANGEMAAKTOP         not null,
    WERKZAAMHEID         WERKZAAMHEID         not null,

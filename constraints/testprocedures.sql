@@ -4,7 +4,7 @@ END
 go
 
 CREATE PROCEDURE spTestInsertGebruiker
-  @gebruikersnaam VARCHAR(255),
+  @gebruikersnaam VARCHAR(255) OUTPUT,
   @wachtwoord     VARCHAR(255),
   @voornaam       VARCHAR(100),
   @tussenvoegsel  VARCHAR(25),
@@ -63,7 +63,7 @@ END
 go
 
 CREATE PROCEDURE spTestInsertAdresgegevens
-  @adresid        INTEGER,
+  @adresid        INTEGER OUTPUT,
   @postcode       VARCHAR(6),
   @huisnummer     NUMERIC(5),
   @toevoeging     NUMERIC(5),
@@ -106,11 +106,64 @@ END
 GO
 
 
+IF EXISTS (SELECT * FROM sys.procedures WHERE name = 'spTestInsertProject') BEGIN
+	DROP PROCEDURE spTestInsertProject
+END
+go
+
+CREATE PROCEDURE spTestInsertProject
+  @projectId        INTEGER OUTPUT,
+  @projecttitel     VARCHAR(255),
+  @aangemaaktOp     DATETIME,
+  @werkzaamheid     VARCHAR(4000),
+  @xcoordinaat      FLOAT,
+  @ycoordinaat      FLOAT
+AS
+BEGIN
+  DECLARE @trancount INT = @@trancount;
+  IF (@trancount = 0)
+    BEGIN TRAN
+  ELSE
+    SAVE TRAN savepoint;
+  BEGIN TRY
+    DECLARE @maxid INTEGER
+    SELECT  @maxid = ISNULL(MAX(PROJECTID), 0) + 1
+    FROM    PROJECT
+    IF (@projectid IS NULL)
+      SET @projectid = @maxid
+    IF (@projecttitel IS NULL)
+      SET @projecttitel = 'Testproject ' + CAST(@maxid AS VARCHAR)
+    IF (@aangemaaktOp IS NULL)
+      SET @aangemaaktOp = DATEADD(hour, @maxid, '2016-01-01')
+      if (@aangemaaktOp > '2017-01-01')
+        SET @aangemaaktOp = '2017-01-01'
+    IF (@werkzaamheid IS NULL)
+      SET @werkzaamheid = 'Dit is project nummer ' + CAST(@maxid AS VARCHAR)
+    IF (@xcoordinaat IS NULL)
+      SET @xcoordinaat = @maxid + 35
+    IF (@ycoordinaat IS NULL)
+      SET @ycoordinaat = @maxid + 105
+    SET IDENTITY_INSERT PROJECT ON
+    INSERT INTO PROJECT (PROJECTID, PROJECTTITEL, AANGEMAAKTOP, WERKZAAMHEID, XCOORDINAAT, YCOORDINAAT)
+      VALUES (@projectId, @projecttitel, @aangemaaktOp, @werkzaamheid, @xcoordinaat, @ycoordinaat)
+    SET IDENTITY_INSERT PROJECT OFF
+  END TRY
+  BEGIN catch
+    IF (@trancount = 0)
+      ROLLBACK TRAN
+    ELSE
+      ROLLBACK TRAN savepoint;
+    THROW;
+  END CATCH
+END
+GO
+
+
 BEGIN TRANSACTION
-EXEC spTestInsertAdresgegevens NULL, NULL, NULL, NULL, NULL, NULL
-EXEC spTestInsertAdresgegevens NULL, NULL, NULL, NULL, NULL, NULL
-EXEC spTestInsertAdresgegevens NULL, NULL, NULL, NULL, NULL, NULL
-SELECT * FROM ADRESGEGEVENS
+EXEC spTestInsertProject NULL, NULL, NULL, NULL, NULL, NULL
+EXEC spTestInsertProject NULL, NULL, NULL, NULL, NULL, NULL
+EXEC spTestInsertProject NULL, NULL, NULL, NULL, NULL, NULL
+SELECT * FROM PROJECT
 ROLLBACK TRANSACTION
 
 DECLARE @getal INT
@@ -127,3 +180,4 @@ EXEC spTestInsertGebruiker NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 EXEC spTestInsertGebruiker NULL, NULL, NULL, NULL, NULL, '2001-05-06', NULL, NULL
 EXEC spTestInsertGebruiker NULL, NULL, 'Peter', 'van', 'Pan', NULL, NULL, NULL
 SELECT * FROM GEBRUIKER*/
+
