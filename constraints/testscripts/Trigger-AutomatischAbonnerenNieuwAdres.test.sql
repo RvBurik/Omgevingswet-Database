@@ -1,38 +1,44 @@
 USE Omgevingswet
 
---Test 1: Wanneer er 2 adressen aan een gebruiker worden toegevoegd moeten alleen de projecten binnen 1km van deze adressen worden toegevoegd.
-BEGIN TRANSACTION
 --Testvariabelen
 DECLARE @gebruiker VARCHAR(255) = 'Testgebruiker'
 DECLARE @adres1 int = 1000
 DECLARE @adres2 int = 1001
+DECLARE @adres3 int = 1002
 DECLARE @projectBinnen1 int = 1000
 DECLARE @projectBinnen2 int = 1001
 DECLARE @projectBuiten1 int = 1002
 DECLARE @projectBuiten2 int = 1003
 DECLARE @projectBuiten3 int = 1004
 
---HAN Faculteit Techniek
+--HAN Faculteit Techniek (Arnhem)
 DECLARE @adres1X float = 5.9509
 DECLARE @adres1Y float = 51.9872
 --Machineweg, Aalsmeer
 DECLARE @adres2X float = 4.7973
 DECLARE @adres2Y float = 52.2803
---Park Presikhaaf
+--Winkelcentrum Presikhaaf
+DECLARE @adres3X float = 5.9516
+DECLARE @adres3Y float = 51.9837
+--Park Presikhaaf - Binnen 1km van adres 1 en 3
 DECLARE @projectBinnen1X float = 5.9482
 DECLARE @projectBinnen1Y float = 51.9860
---Albert Heijn, Poldermeesterplein 1
+--Albert Heijn, Poldermeesterplein 1 - Binnen 1km van adres 2
 DECLARE @projectBinnen2X float = 4.7944
 DECLARE @projectBinnen2Y float = 52.2746
---Schiphol Airport
+--Schiphol Airport - Buiten 1km van adres 1, 2, 3
 DECLARE @projectBuiten1X float = 4.7647
 DECLARE @projectBuiten1Y float = 52.3098
---Arnhem Snackbar West - Ongeveer 1.2km noord-west van HAN.
+--Arnhem Snackbar West - Ongeveer 1.2km noord-west van HAN
 DECLARE @projectBuiten2X float = 5.9670
 DECLARE @projectBuiten2Y float = 51.9925
 --Arnhem Bakkerij Veenhuis - Ongeveer 1.2km zuid-oost van HAN
 DECLARE @projectBuiten3X float = 5.9405
 DECLARE @projectBuiten3Y float = 51.9785
+
+
+--Test 1: Wanneer er 2 adressen aan een gebruiker worden toegevoegd moeten alleen de projecten binnen 1km van deze adressen worden toegevoegd.
+BEGIN TRANSACTION
 
 --Maak testdata
 EXEC spTestInsertParticulier @gebruiker, NULL, NULL, NULL, NULL, NULL, NULL, NULL
@@ -65,3 +71,41 @@ ELSE
     RAISERROR ('Test 1 mislukt.', 16, 1)
 
 ROLLBACK
+
+
+--Test 2: Wanneer er 3 adressen aan een gebruiker worden toegevoegd waarvan er 2 worden verwijderd, moeten de projecten
+--binnen 1km van de verwijderde adressen die niet binnen 1km van de andere adressen liggen worden verwijderd.
+BEGIN TRANSACTION
+
+--Maak testdata
+EXEC spTestInsertParticulier @gebruiker, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+EXEC spTestInsertAdresgegevens @adres1, NULL, NULL, NULL, @adres1X, @adres1Y
+EXEC spTestInsertAdresgegevens @adres2, NULL, NULL, NULL, @adres2X, @adres2Y
+EXEC spTestInsertAdresgegevens @adres3, NULL, NULL, NULL, @adres3X, @adres3Y
+EXEC spTestInsertProject @projectBinnen1, NULL, NULL, NULL, @projectBinnen1X, @projectBinnen1Y
+EXEC spTestInsertProject @projectBinnen2, NULL, NULL, NULL, @projectBinnen2X, @projectBinnen2Y
+
+--Voer de insert + trigger uit
+INSERT INTO ADRES_VAN_GEBRUIKER (ADRESID, GEBRUIKERSNAAM)
+    VALUES (@adres1, @gebruiker), (@adres2, @gebruiker), (@adres3, @gebruiker)
+
+--Voer de delete + trigger uit
+DELETE FROM ADRES_VAN_GEBRUIKER WHERE ADRESID = @adres1 OR ADRESID = @adres2
+
+
+--Test of de trigger geslaagd is.
+--TODO: Automatisch toegevoegd kolom...
+--Project 2 lag binnen alleen het verwijderde adres 2 en moet dus verwijderd zijn.
+IF NOT EXISTS (SELECT 1
+FROM PROJECTROL_VAN_GEBRUIKER
+WHERE GEBRUIKERSNAAM = 'Testgebruiker' AND PROJECTID = @projectBinnen2)
+--Project 1 lag binnen het verwijderde adres 1, maar ook binnen het niet-verwijderde adres 3 en moet dus niet verwijderd zijn.
+AND EXISTS (SELECT 1
+FROM PROJECTROL_VAN_GEBRUIKER
+WHERE GEBRUIKERSNAAM = 'Testgebruiker' AND PROJECTID = @projectBinnen1)
+    PRINT 'Test 2 geslaagd.'
+ELSE
+    RAISERROR ('Test 2 mislukt.', 16, 1)
+
+ROLLBACK
+
