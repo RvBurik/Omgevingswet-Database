@@ -3,7 +3,7 @@ USE Omgevingswet
 IF EXISTS (SELECT * FROM sys.procedures WHERE name = 'spTestInsertParticulier') BEGIN
 	DROP PROCEDURE spTestInsertParticulier
 END
-go
+GO
 
 CREATE PROCEDURE spTestInsertParticulier
   @gebruikersnaam VARCHAR(255) OUTPUT,
@@ -49,6 +49,55 @@ BEGIN
       VALUES (@gebruikersnaam, @wachtwoord, @mailadres)
     INSERT INTO PARTICULIER (GEBRUIKERSNAAM, VOORNAAM, TUSSENVOEGSEL, ACHTERNAAM, GEBOORTEDATUM, GESLACHT)
       VALUES (@gebruikersnaam, @voornaam, @tussenvoegsel, @achternaam, @geboortedatum, @geslacht)
+    COMMIT TRANSACTION
+  END TRY
+  BEGIN catch
+    IF (@trancount = 0)
+      ROLLBACK TRAN
+    ELSE
+      ROLLBACK TRAN savepoint;
+    THROW;
+  END CATCH
+END
+GO
+
+
+IF EXISTS (SELECT * FROM sys.procedures WHERE name = 'spTestInsertBedrijf') BEGIN
+	DROP PROCEDURE spTestInsertBedrijf
+END
+GO
+
+CREATE PROCEDURE spTestInsertBedrijf
+  @gebruikersnaam VARCHAR(255) OUTPUT,
+  @wachtwoord     VARCHAR(255),
+  @kvknummer      CHAR(8),
+  @bedrijfsnaam   VARCHAR(255),
+  @mailadres      VARCHAR(255)
+AS
+BEGIN
+  DECLARE @trancount INT = @@trancount;
+  IF (@trancount = 0)
+    BEGIN TRAN
+  ELSE
+    SAVE TRAN savepoint;
+  BEGIN TRY
+    DECLARE @row INTEGER
+    SELECT  @row = count(*)
+    FROM    GEBRUIKER
+    IF (@gebruikersnaam IS NULL)
+      SET @gebruikersnaam = 'Testbedrijf' + CAST(@row AS VARCHAR)
+    IF (@wachtwoord IS NULL)
+      SET @wachtwoord = 'Wachtwoord' + CAST(@row AS VARCHAR)
+    IF (@kvknummer IS NULL)
+      SET @kvknummer = RIGHT('00000000' + CAST(@row AS VARCHAR(8)), 8)
+    IF (@bedrijfsnaam IS NULL)
+      SET @bedrijfsnaam = 'Testbedrijf ' + CAST(@row AS VARCHAR)
+    IF (@mailadres IS NULL)
+      SET @mailadres = 'test' + CAST(@row AS VARCHAR) + '@company.net'
+    INSERT INTO GEBRUIKER (GEBRUIKERSNAAM, WACHTWOORD, MAILADRES)
+      VALUES (@gebruikersnaam, @wachtwoord, @mailadres)
+    INSERT INTO BEDRIJF (GEBRUIKERSNAAM, KVKNUMMER, BEDRIJFSNAAM)
+      VALUES (@gebruikersnaam, @kvknummer, @bedrijfsnaam)
     COMMIT TRANSACTION
   END TRY
   BEGIN catch
