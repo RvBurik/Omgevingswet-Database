@@ -1,3 +1,3 @@
-alter table abonnement
-add constraint DF_DATUMAANVRAAG DEFAULT getdate() FOR DATUMAANVRAAG
-go
+alter table vergunningsinformatie
+add constraint DF_VERGUNNINGSINFORMATIE_DATUM DEFAULT GETDATE() FOR DATUM
+GO
