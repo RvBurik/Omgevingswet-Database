@@ -2,8 +2,6 @@
 /* DBMS name:      Microsoft SQL Server 2014                    */
 /* Created on:     31-5-2017 11:47:48                           */
 /*==============================================================*/
-DROP DATABASE OMGEVINGSWETLOCAL
-GO
 
 
 if exists (select 1
@@ -196,6 +194,13 @@ go
 
 if exists (select 1
             from  sysobjects
+           where  id = object_id('PARTICULIER')
+            and   type = 'U')
+   drop table PARTICULIER
+go
+
+if exists (select 1
+            from  sysobjects
            where  id = object_id('GEBRUIKER')
             and   type = 'U')
    drop table GEBRUIKER
@@ -206,13 +211,6 @@ if exists (select 1
            where  id = object_id('GEMEENTE_GEBRUIKER')
             and   type = 'U')
    drop table GEMEENTE_GEBRUIKER
-go
-
-if exists (select 1
-            from  sysobjects
-           where  id = object_id('PARTICULIER')
-            and   type = 'U')
-   drop table PARTICULIER
 go
 
 if exists (select 1
@@ -529,10 +527,6 @@ go
 
 if exists(select 1 from systypes where name='STATUS')
    drop type STATUS
-go
-
-if exists(select 1 from systypes where name='TELEFOONNUMMER')
-   execute sp_unbindrule TELEFOONNUMMER
 go
 
 if exists(select 1 from systypes where name='TELEFOONNUMMER')
@@ -944,7 +938,7 @@ go
 create table ADRESGEGEVENS (
    ADRESID              ADRESID              IDENTITY(1,1),
    POSTCODE             POSTCODE             not null,
-   HUISNUMMER           HUISNUMMER           not null 
+   HUISNUMMER           HUISNUMMER           not null
       constraint CKC_HUISNUMMER_ADRES check (HUISNUMMER between 00000001 and 99999999),
    TOEVOEGING           TOEVOEGING           null,
    XCOORDINAAT          COORDINAAT           not null,
@@ -1167,7 +1161,7 @@ go
 create table VERGUNNING (
    VERGUNNINGSID        VERGUNNINGSID        not null,
    VERGUNNINGSNAAM      VERGUNNINGSNAAM      not null,
-   STATUS               STATUS               not null 
+   STATUS               STATUS               not null
       constraint CKC_STATUS_VERGUNNI2 check (STATUS in ('Aangevraagd','Afwewezen','Uitgegeven','Verlopen','Bezwaar')),
    PROJECTID            PROJECTID            not null,
    OMSCHRIJVING         OMSCHRIJVING         not null,
@@ -1246,7 +1240,7 @@ go
 /* Table: VERGUNNINGSTATUS                                      */
 /*==============================================================*/
 create table VERGUNNINGSTATUS (
-   STATUS               STATUS               not null 
+   STATUS               STATUS               not null
       constraint CKC_STATUS_VERGUNNI check (STATUS in ('Aangevraagd','Afwewezen','Uitgegeven','Verlopen','Bezwaar')),
    constraint PK_VERGUNNINGSTATUS primary key (STATUS)
 )
@@ -1322,6 +1316,11 @@ alter table BEZWAAR
 alter table BEZWAAR
 	add constraint UN_BEZWAAR_VERGUNNING unique (GEBRUIKERSNAAM, PROJECTID, VERGUNNINGSID)
 
+alter table PARTICULIER
+   add constraint FK__GEBRUIKER_PARTICUL_GEBRUIKE foreign key (GEBRUIKERSNAAM)
+      references GEBRUIKER (GEBRUIKERSNAAM)
+go
+
 alter table GEMEENTE_GEBRUIKER
    add constraint FK_GEMEENTE_REFERENCE_GEBRUIKE foreign key (GEBRUIKERSNAAM)
       references GEBRUIKER (GEBRUIKERSNAAM)
@@ -1330,11 +1329,6 @@ go
 alter table GEMEENTE_GEBRUIKER
    add constraint FK_GEMEENTE_REFERENCE_RECHT foreign key (RECHTNAAM)
       references RECHT (RECHTNAAM)
-go
-
-alter table GEBRUIKER
-   add constraint FK_PARTICUL_GEBRUIKER_GEBRUIKE foreign key (GEBRUIKERSNAAM)
-      references PARTICULIER (GEBRUIKERSNAAM)
 go
 
 alter table PROJECTROL_VAN_GEBRUIKER
