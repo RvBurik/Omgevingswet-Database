@@ -2,6 +2,7 @@ USE Omgevingswet
 
 --Testvariabelen
 DECLARE @gebruiker VARCHAR(255) = 'Testgebruiker'
+DECLARE @gebruiker2 VARCHAR(255) = 'Testgebruiker2'
 DECLARE @adres1 int = 1000
 DECLARE @adres2 int = 1001
 DECLARE @adres3 int = 1002
@@ -52,23 +53,23 @@ EXEC spTestInsertProject @projectBuiten3, NULL, NULL, NULL, @projectBuiten3X, @p
 
 --Voer de insert + trigger uit
 INSERT INTO ADRES_VAN_GEBRUIKER (ADRESID, GEBRUIKERSNAAM)
-    VALUES (@adres1, @gebruiker), (@adres2, @gebruiker)
+  VALUES (@adres1, @gebruiker), (@adres2, @gebruiker)
 
 --Test of de trigger geslaagd is
 IF EXISTS (SELECT 1
 FROM PROJECTROL_VAN_GEBRUIKER
-WHERE GEBRUIKERSNAAM = 'Testgebruiker' AND PROJECTID = @projectBinnen1)
+WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBinnen1)
 
 AND EXISTS (SELECT 1
 FROM PROJECTROL_VAN_GEBRUIKER
-WHERE GEBRUIKERSNAAM = 'Testgebruiker' AND PROJECTID = @projectBinnen2)
+WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBinnen2)
 
 AND NOT EXISTS (SELECT 1
 FROM PROJECTROL_VAN_GEBRUIKER
-WHERE GEBRUIKERSNAAM = 'Testgebruiker' AND PROJECTID IN (@projectBuiten1, @projectBuiten2, @projectBuiten3))
-    PRINT 'Test 1 geslaagd.'
+WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID IN (@projectBuiten1, @projectBuiten2, @projectBuiten3))
+  PRINT 'Test 1 geslaagd.'
 ELSE
-    RAISERROR ('Test 1 mislukt.', 16, 1)
+  RAISERROR ('Test 1 mislukt.', 16, 1)
 
 ROLLBACK
 
@@ -87,25 +88,201 @@ EXEC spTestInsertProject @projectBinnen2, NULL, NULL, NULL, @projectBinnen2X, @p
 
 --Voer de insert + trigger uit
 INSERT INTO ADRES_VAN_GEBRUIKER (ADRESID, GEBRUIKERSNAAM)
-    VALUES (@adres1, @gebruiker), (@adres2, @gebruiker), (@adres3, @gebruiker)
+  VALUES (@adres1, @gebruiker), (@adres2, @gebruiker), (@adres3, @gebruiker)
 
 --Voer de delete + trigger uit
 DELETE FROM ADRES_VAN_GEBRUIKER WHERE ADRESID = @adres1 OR ADRESID = @adres2
 
-
 --Test of de trigger geslaagd is.
---TODO: Automatisch toegevoegd kolom...
 --Project 2 lag binnen alleen het verwijderde adres 2 en moet dus verwijderd zijn.
-IF NOT EXISTS (SELECT 1
-FROM PROJECTROL_VAN_GEBRUIKER
-WHERE GEBRUIKERSNAAM = 'Testgebruiker' AND PROJECTID = @projectBinnen2)
+IF NOT EXISTS (
+    SELECT 1
+    FROM PROJECTROL_VAN_GEBRUIKER
+    WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBinnen2)
 --Project 1 lag binnen het verwijderde adres 1, maar ook binnen het niet-verwijderde adres 3 en moet dus niet verwijderd zijn.
-AND EXISTS (SELECT 1
-FROM PROJECTROL_VAN_GEBRUIKER
-WHERE GEBRUIKERSNAAM = 'Testgebruiker' AND PROJECTID = @projectBinnen1)
+AND EXISTS (
+    SELECT 1
+    FROM PROJECTROL_VAN_GEBRUIKER
+    WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBinnen1
+)
     PRINT 'Test 2 geslaagd.'
 ELSE
     RAISERROR ('Test 2 mislukt.', 16, 1)
 
 ROLLBACK
 
+
+--Test 3: Wanneer er 3 adressen aan een gebruiker worden toegevoegd waarvan er 2 worden verwijderd, mogen de handmatig
+--toegevoegde projecten binnen 1km van de verwijderde adressen niet worden verwijderd.
+BEGIN TRANSACTION
+
+--Maak testdata
+EXEC spTestInsertParticulier @gebruiker, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+EXEC spTestInsertAdresgegevens @adres1, NULL, NULL, NULL, @adres1X, @adres1Y
+EXEC spTestInsertAdresgegevens @adres2, NULL, NULL, NULL, @adres2X, @adres2Y
+EXEC spTestInsertAdresgegevens @adres3, NULL, NULL, NULL, @adres3X, @adres3Y
+EXEC spTestInsertProject @projectBinnen1, NULL, NULL, NULL, @projectBinnen1X, @projectBinnen1Y
+EXEC spTestInsertProject @projectBinnen2, NULL, NULL, NULL, @projectBinnen2X, @projectBinnen2Y
+
+--Voer de insert + trigger uit
+INSERT INTO ADRES_VAN_GEBRUIKER (ADRESID, GEBRUIKERSNAAM)
+  VALUES (@adres1, @gebruiker), (@adres2, @gebruiker)
+
+--Maak de abonnementen "handmatig" toegevoegd.
+UPDATE PROJECTROL_VAN_GEBRUIKER
+SET AUTOMATISCHTOEGEVOEGD = 0
+WHERE GEBRUIKERSNAAM = @gebruiker
+
+--Voer de delete + trigger uit
+DELETE FROM ADRES_VAN_GEBRUIKER WHERE ADRESID = @adres1 OR ADRESID = @adres2
+
+--Test of de trigger geslaagd is.
+--Project 2 lag binnen alleen het verwijderde adres 2, maar mag niet verwijderd worden.
+IF EXISTS (
+  SELECT 1
+  FROM PROJECTROL_VAN_GEBRUIKER
+  WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBinnen2)
+--Project 1 lag binnen het verwijderde adres 1, maar ook binnen het niet-verwijderde adres 3 en moet dus niet verwijderd zijn.
+AND EXISTS (
+  SELECT 1
+  FROM PROJECTROL_VAN_GEBRUIKER
+  WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBinnen1
+)
+  PRINT 'Test 3 geslaagd.'
+ELSE
+  RAISERROR ('Test 3 mislukt.', 16, 1)
+
+ROLLBACK
+
+--Test 4: Wanneer er 2 adressen via een update aan een gebruiker worden toegevoegd, moet er geabonneerd worden op de
+--projecten binnen 1km van deze "nieuwe" adressen.
+BEGIN TRANSACTION
+
+--Maak testdata
+EXEC spTestInsertParticulier @gebruiker, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+EXEC spTestInsertParticulier @gebruiker2, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+EXEC spTestInsertAdresgegevens @adres1, NULL, NULL, NULL, @adres1X, @adres1Y
+EXEC spTestInsertAdresgegevens @adres2, NULL, NULL, NULL, @adres2X, @adres2Y
+EXEC spTestInsertProject @projectBinnen1, NULL, NULL, NULL, @projectBinnen1X, @projectBinnen1Y
+EXEC spTestInsertProject @projectBinnen2, NULL, NULL, NULL, @projectBinnen2X, @projectBinnen2Y
+EXEC spTestInsertProject @projectBuiten1, NULL, NULL, NULL, @projectBuiten1X, @projectBuiten1Y
+EXEC spTestInsertProject @projectBuiten2, NULL, NULL, NULL, @projectBuiten2X, @projectBuiten2Y
+EXEC spTestInsertProject @projectBuiten3, NULL, NULL, NULL, @projectBuiten3X, @projectBuiten3Y
+
+--Voer de insert + trigger uit
+INSERT INTO ADRES_VAN_GEBRUIKER (ADRESID, GEBRUIKERSNAAM)
+  VALUES (@adres1, @gebruiker2), (@adres2, @gebruiker2)
+
+--Voer de update + trigger uit
+UPDATE ADRES_VAN_GEBRUIKER
+SET GEBRUIKERSNAAM = @gebruiker
+WHERE ADRESID = @adres1
+  OR  ADRESID = @adres2
+
+--Test of de trigger geslaagd is
+IF EXISTS (SELECT 1
+FROM PROJECTROL_VAN_GEBRUIKER
+WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBinnen1)
+
+AND EXISTS (SELECT 1
+FROM PROJECTROL_VAN_GEBRUIKER
+WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBinnen2)
+
+AND NOT EXISTS (SELECT 1
+FROM PROJECTROL_VAN_GEBRUIKER
+WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID IN (@projectBuiten1, @projectBuiten2, @projectBuiten3))
+  PRINT 'Test 4 geslaagd.'
+ELSE
+  RAISERROR ('Test 4 mislukt.', 16, 1)
+
+ROLLBACK
+
+
+--Test 5: Wanneer er 3 adressen aan een gebruiker worden toegevoegd waarvan er 2 via een update worden "verwijderd", moeten
+--de projecten binnen 1km van de verwijderde adressen die niet binnen 1km van de andere adressen liggen worden verwijderd.
+BEGIN TRANSACTION
+
+--Maak testdata
+EXEC spTestInsertParticulier @gebruiker, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+EXEC spTestInsertParticulier @gebruiker2, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+EXEC spTestInsertAdresgegevens @adres1, NULL, NULL, NULL, @adres1X, @adres1Y
+EXEC spTestInsertAdresgegevens @adres2, NULL, NULL, NULL, @adres2X, @adres2Y
+EXEC spTestInsertAdresgegevens @adres3, NULL, NULL, NULL, @adres3X, @adres3Y
+EXEC spTestInsertProject @projectBinnen1, NULL, NULL, NULL, @projectBinnen1X, @projectBinnen1Y
+EXEC spTestInsertProject @projectBinnen2, NULL, NULL, NULL, @projectBinnen2X, @projectBinnen2Y
+
+--Voer de insert + trigger uit
+INSERT INTO ADRES_VAN_GEBRUIKER (ADRESID, GEBRUIKERSNAAM)
+  VALUES (@adres1, @gebruiker), (@adres2, @gebruiker), (@adres3, @gebruiker)
+
+--Voer de update + trigger uit
+UPDATE ADRES_VAN_GEBRUIKER
+SET GEBRUIKERSNAAM = @gebruiker2
+WHERE ADRESID = @adres1
+  OR  ADRESID = @adres2
+
+--Test of de trigger geslaagd is.
+--Project 2 lag binnen alleen het verwijderde adres 2 en moet dus verwijderd zijn.
+IF NOT EXISTS (
+    SELECT 1
+    FROM PROJECTROL_VAN_GEBRUIKER
+    WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBinnen2)
+--Project 1 lag binnen het verwijderde adres 1, maar ook binnen het niet-verwijderde adres 3 en moet dus niet verwijderd zijn.
+AND EXISTS (
+    SELECT 1
+    FROM PROJECTROL_VAN_GEBRUIKER
+    WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBinnen1
+)
+    PRINT 'Test 5 geslaagd.'
+ELSE
+    RAISERROR ('Test 5 mislukt.', 16, 1)
+
+ROLLBACK
+
+
+--Test 6: Wanneer de locaties van 2 adressen bijgewerkt worden, moeten de projecten hierbuiten worden verwijderd, en de
+--projecten daarbinnen worden toegevoegd.
+BEGIN TRANSACTION
+
+--Maak testdata
+EXEC spTestInsertParticulier @gebruiker, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+EXEC spTestInsertAdresgegevens @adres1, NULL, NULL, NULL, @adres1X, @adres1Y
+EXEC spTestInsertAdresgegevens @adres2, NULL, NULL, NULL, @adres2X, @adres2Y
+EXEC spTestInsertProject @projectBinnen1, NULL, NULL, NULL, @projectBinnen1X, @projectBinnen1Y
+EXEC spTestInsertProject @projectBinnen2, NULL, NULL, NULL, @projectBinnen2X, @projectBinnen2Y
+EXEC spTestInsertProject @projectBuiten1, NULL, NULL, NULL, @projectBuiten1X, @projectBuiten1Y
+EXEC spTestInsertProject @projectBuiten2, NULL, NULL, NULL, @projectBuiten2X, @projectBuiten2Y
+
+--Voer de insert + trigger uit
+INSERT INTO ADRES_VAN_GEBRUIKER (ADRESID, GEBRUIKERSNAAM)
+  VALUES (@adres1, @gebruiker), (@adres2, @gebruiker)
+
+SELECT * FROM PROJECTROL_VAN_GEBRUIKER
+
+--Voer de update + trigger uit
+UPDATE ADRESGEGEVENS
+SET XCOORDINAAT = @projectBuiten1X, YCOORDINAAT = @projectBuiten1Y
+WHERE ADRESID = @adres1
+UPDATE ADRESGEGEVENS
+SET XCOORDINAAT = @projectBuiten2X, YCOORDINAAT = @projectBuiten2Y
+WHERE ADRESID = @adres2
+
+SELECT * FROM PROJECTROL_VAN_GEBRUIKER
+
+--Test of de trigger geslaagd is
+IF EXISTS (SELECT 1
+FROM PROJECTROL_VAN_GEBRUIKER
+WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBuiten1)
+
+AND EXISTS (SELECT 1
+FROM PROJECTROL_VAN_GEBRUIKER
+WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBuiten2)
+
+AND NOT EXISTS (SELECT 1
+FROM PROJECTROL_VAN_GEBRUIKER
+WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID IN (@projectBinnen1, @projectBinnen2))
+  PRINT 'Test 6 geslaagd.'
+ELSE
+  RAISERROR ('Test 6 mislukt.', 16, 1)
+
+ROLLBACK
