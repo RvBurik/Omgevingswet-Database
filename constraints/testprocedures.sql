@@ -49,7 +49,6 @@ BEGIN
       VALUES (@gebruikersnaam, @wachtwoord, @mailadres)
     INSERT INTO PARTICULIER (GEBRUIKERSNAAM, VOORNAAM, TUSSENVOEGSEL, ACHTERNAAM, GEBOORTEDATUM, GESLACHT)
       VALUES (@gebruikersnaam, @voornaam, @tussenvoegsel, @achternaam, @geboortedatum, @geslacht)
-    COMMIT TRANSACTION
   END TRY
   BEGIN catch
     IF (@trancount = 0)
@@ -98,7 +97,6 @@ BEGIN
       VALUES (@gebruikersnaam, @wachtwoord, @mailadres)
     INSERT INTO BEDRIJF (GEBRUIKERSNAAM, KVKNUMMER, BEDRIJFSNAAM)
       VALUES (@gebruikersnaam, @kvknummer, @bedrijfsnaam)
-    COMMIT TRANSACTION
   END TRY
   BEGIN catch
     IF (@trancount = 0)
@@ -148,7 +146,6 @@ BEGIN
     INSERT INTO ADRESGEGEVENS (ADRESID, POSTCODE, HUISNUMMER, TOEVOEGING, XCOORDINAAT, YCOORDINAAT)
       VALUES (@adresid, @postcode, @huisnummer, @toevoeging, @xcoordinaat, @ycoordinaat)
     SET IDENTITY_INSERT ADRESGEGEVENS OFF
-    COMMIT TRANSACTION
   END TRY
   BEGIN catch
     IF (@trancount = 0)
@@ -202,7 +199,6 @@ BEGIN
     INSERT INTO PROJECT (PROJECTID, PROJECTTITEL, AANGEMAAKTOP, WERKZAAMHEID, XCOORDINAAT, YCOORDINAAT)
       VALUES (@projectId, @projecttitel, @aangemaaktOp, @werkzaamheid, @xcoordinaat, @ycoordinaat)
     SET IDENTITY_INSERT PROJECT OFF
-    COMMIT TRANSACTION
   END TRY
   BEGIN catch
     IF (@trancount = 0)
