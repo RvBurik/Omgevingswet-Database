@@ -1,4 +1,3 @@
-USE Omgevingswet
 
 --Testvariabelen
 DECLARE @gebruiker VARCHAR(255) = 'Testgebruiker'

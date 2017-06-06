@@ -1,4 +1,3 @@
-USE Omgevingswet
 
 IF EXISTS (SELECT *
            FROM   SYS.OBJECTS

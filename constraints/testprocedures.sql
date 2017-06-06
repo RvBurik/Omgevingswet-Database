@@ -1,4 +1,3 @@
-USE Omgevingswet
 
 IF EXISTS (SELECT * FROM sys.procedures WHERE name = 'spTestInsertParticulier') BEGIN
 	DROP PROCEDURE spTestInsertParticulier
