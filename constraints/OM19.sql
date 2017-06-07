@@ -3,24 +3,27 @@ IF EXISTS (SELECT * FROM SYS.TRIGGERS WHERE NAME = 'trgBezwaarMakenVanaf18') BEG
 END
 go
 
-create trigger trgBezwaarMakenVanaf18
-on Bezwaar
-after insert, update
-as
-begin
-	if @@rowcount =0
-		return
-	begin try
-		if exists (
-			select 1
-			from inserted i inner join gebruiker g on i.GEBRUIKERSNAAM = g.GEBRUIKERSNAAM
-			where g.GEBOORTEDATUM > DATEADD(YEAR, -18, getdate())
-		) begin
-			THROW 50018, 'Een gebruiker moet minimaal 18 jaar zijn om bezwaar te kunnen maken.', 1;
-		end
-	end try
-	begin catch
-		throw;
-	end catch
-end
-go
+CREATE TRIGGER trgBezwaarMakenVanaf18
+ON BEZWAAR
+AFTER INSERT, UPDATE
+AS
+	BEGIN
+		IF @@rowcount =0
+			RETURN
+		BEGIN TRY
+			IF EXISTS (
+				SELECT 1
+				FROM inserted AS I 
+				INNER JOIN PARTICULIER AS P 
+				ON I.GEBRUIKERSNAAM = P.GEBRUIKERSNAAM
+				WHERE P.GEBOORTEDATUM > DATEADD(YEAR, -18, GETDATE())
+			) 
+			BEGIN
+				RAISERROR('Een gebruiker moet minimaal 18 jaar zijn om bezwaar te kunnen maken.', 16,1)
+			END
+		END TRY
+		BEGIN CATCH
+			THROW;
+		END CATCH
+	END
+GO
