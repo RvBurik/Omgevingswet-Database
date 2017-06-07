@@ -1159,10 +1159,10 @@ go
 /* Table: VERGUNNING                                            */
 /*==============================================================*/
 create table VERGUNNING (
-   VERGUNNINGSID        VERGUNNINGSID        not null,
+   VERGUNNINGSID        VERGUNNINGSID        identity(1,1),
    VERGUNNINGSNAAM      VERGUNNINGSNAAM      not null,
    STATUS               STATUS               not null
-      constraint CKC_STATUS_VERGUNNI2 check (STATUS in ('Aangevraagd','Afwewezen','Uitgegeven','Verlopen','Bezwaar')),
+      constraint CKC_STATUS_VERGUNNI2 check (STATUS in ('Aangevraagd','Afgewezen','Uitgegeven','Verlopen','Bezwaar')),
    PROJECTID            PROJECTID            not null,
    OMSCHRIJVING         OMSCHRIJVING         not null,
    DATUMAANVRAAG        DATUMAANVRAAG        not null,
