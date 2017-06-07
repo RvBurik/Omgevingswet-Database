@@ -16,8 +16,8 @@ begin try
 	declare @vergunningstatus3 varchar(255) = 'Bezwaar';
 	declare @vergunningsnaam1 varchar(255) = 'Evenementenvergunning';
 
-	insert into ROL (TYPE)
-	values (@rol1);
+	insert into ROL (ROLNAAM, ROLBESCHRIJVING)
+	values (@rol1, 'Test beschrijving');
 
 	insert into VERGUNNINGSTATUS (STATUS)
 	values (@vergunningstatus1);
@@ -50,9 +50,13 @@ begin try
 
 	declare @adresid1 int scope_identity();
 	*/
-	insert into GEBRUIKER (GEBRUIKERSNAAM, WACHTWOORD, VOORNAAM, ACHTERNAAM, GEBOORTEDATUM, GESLACHT, MAILADRES)
-	values (@gebruikersnaam1, @wachtwoord1, @voornaam1, @achternaam1, @geboortedatum1, @geslacht1, @mailadres1);
+	insert into GEBRUIKER (GEBRUIKERSNAAM, WACHTWOORD, MAILADRES)
+	values (@gebruikersnaam1, @wachtwoord1, @mailadres1);
+
+	insert into PARTICULIER(GEBRUIKERSNAAM, VOORNAAM, ACHTERNAAM, GEBOORTEDATUM, GESLACHT)
+	values(@gebruikersnaam1, @voornaam1, @achternaam1, @geboortedatum1, @geslacht1)
 	/*
+
 	insert into ADRES_VAN_GEBRUIKER (GEBRUIKERSNAAM, ADRESID)
 	values (@gebruikersnaam1, @adresid1);
 	
@@ -80,8 +84,11 @@ begin try
 
 	declare @adresid2 int = scope_identity();
 	*/
-	insert into GEBRUIKER (GEBRUIKERSNAAM, WACHTWOORD, VOORNAAM, ACHTERNAAM, GEBOORTEDATUM, GESLACHT, MAILADRES)
-	values (@gebruikersnaam2, @wachtwoord2, @voornaam2, @achternaam2, @geboortedatum2, @geslacht2, @mailadres2);
+	insert into GEBRUIKER (GEBRUIKERSNAAM, WACHTWOORD, MAILADRES)
+	values (@gebruikersnaam2, @wachtwoord2, @mailadres2);
+
+	insert into PARTICULIER (GEBRUIKERSNAAM, VOORNAAM, ACHTERNAAM, GEBOORTEDATUM, GESLACHT)
+	values (@gebruikersnaam2, @voornaam2, @achternaam2, @geboortedatum2, @geslacht2)
 
 	/*
 	insert into ADRES_VAN_GEBRUIKER (GEBRUIKERSNAAM, ADRESID)
@@ -95,21 +102,27 @@ begin try
 	*/
 
 	-- Aanmaken testdata van bedrijf met werknemer(s).
+	
 	declare @postcode3 varchar(255) = '1111BB';
 	declare @huisnummer3 int = 1337;
 	declare @kvknummer3 int = 12345678;
+	declare @bedrijfsgebruikersnaam3 varchar(255) = 'bed_gebruiker';
 	declare @bedrijfsnaam3 varchar(255) = 'DatabaseFactory5';
-	declare @bedrijfswachtwoord3 varchar(255) = 'wachtwoord';
+	declare @bedrijfswachtwoord3 varchar(255) = 'wachtwoord'
+	declare @bedrijfsmail3 varchar(255) = 'mail@bedrijf.com'
 	declare @telefoonnummer3 varchar(255) = '0611111111';
-	
+	/*
 	insert into ADRESGEGEVENS (POSTCODE, HUISNUMMER)
 	values (@postcode3, @huisnummer3);
-
+	*/
 	declare @adresid3 int = scope_identity();
+	
+	insert into PARTICULIER (GEBRUIKERSNAAM, WACHTWOORD, MAILADRES)
+	values (@bedrijfsgebruikersnaam3, @bedrijfswachtwoord3, @bedrijfsmail3)
 
-	insert into BEDRIJF (KVKNUMMER, ADRESID, BEDRIJFSNAAM, BEDRIJFSWACHTWOORD)
-	values (@kvknummer3, @adresid3, @bedrijfsnaam3, @bedrijfswachtwoord3);
-
+	insert into BEDRIJF (GEBRUIKERSNAAM, KVKNUMMER, BEDRIJFSNAAM)
+	values (@bedrijfsgebruikersnaam3, @kvknummer3, @bedrijfsnaam3);
+	
 	/*
 	insert into TELEFOON (TELEFOONNUMMER)
 	values (@telefoonnummer3);
@@ -117,10 +130,10 @@ begin try
 	insert into TELEFOON_VAN_BEDRIJF (KVKNUMMER, TELEFOONNUMMER)
 	values (@kvknummer3, @telefoonnummer3);
 	*/
-
+	/*
 	insert into WERKNEMER (GEBRUIKERSNAAM, KVKNUMMER, TYPE)
 	values (@gebruikersnaam2, @kvknummer3, @rol1);
-
+	*/
 	-- Aanmaken testdata van project en vergunning waarop bezwaar gemaakt wordt.
 	declare @aangemaaktop date = getdate();
 	declare @werkzaamheid varchar(4000) = 'Dit is een testwerkzaamheid.';
@@ -151,6 +164,7 @@ begin try
 
 	exec uspBezwaarMaken
 		@gebruikersnaam = @gebruikersnaam1,
+		@projectid = @projectid3,
 		@vergunningsid = @vergunningsid1,
 		@bezwaarreden = @bezwaarreden1;
 
@@ -224,8 +238,11 @@ begin try
 
 	declare @adresid1 int scope_identity();
 	*/
-	insert into GEBRUIKER (GEBRUIKERSNAAM, WACHTWOORD, VOORNAAM, ACHTERNAAM, GEBOORTEDATUM, GESLACHT, MAILADRES)
-	values (@gebruikersnaam1, @wachtwoord1, @voornaam1, @achternaam1, @geboortedatum1, @geslacht1, @mailadres1);
+	insert into GEBRUIKER (GEBRUIKERSNAAM, WACHTWOORD, MAILADRES)
+	values (@gebruikersnaam1, @wachtwoord1, @mailadres1);
+	
+	insert into PARTICULIER (GEBRUIKERSNAAM, VOORNAAM, ACHTERNAAM, GEBOORTEDATUM, GESLACHT)
+	values(@gebruikersnaam1, @voornaam1, @achternaam1, @geboortedatum1, @geslacht1)
 	/*
 	insert into ADRES_VAN_GEBRUIKER (GEBRUIKERSNAAM, ADRESID)
 	values (@gebruikersnaam1, @adresid1);

@@ -3,7 +3,6 @@
 /* Created on:     31-5-2017 11:47:48                           */
 /*==============================================================*/
 
-
 if exists (select 1
    from sys.sysreferences r join sys.sysobjects o on (o.id = r.constid and o.type = 'F')
    where r.fkeyid = object_id('ADRES_VAN_GEBRUIKER') and o.name = 'FK_ADRES_VA_ADRES_VAN_ADRES')
