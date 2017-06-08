@@ -8,7 +8,7 @@ ON BEZWAAR
 AFTER INSERT, UPDATE
 AS
 	BEGIN
-		IF @@rowcount =0
+		IF @@rowcount = 0
 			RETURN
 		BEGIN TRY
 			IF EXISTS (
