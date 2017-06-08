@@ -256,8 +256,6 @@ EXEC spTestInsertProject @projectBuiten2, NULL, NULL, NULL, @projectBuiten2X, @p
 INSERT INTO ADRES_VAN_GEBRUIKER (ADRESID, GEBRUIKERSNAAM)
   VALUES (@adres1, @gebruiker), (@adres2, @gebruiker)
 
-SELECT * FROM PROJECTROL_VAN_GEBRUIKER
-
 --Voer de update + trigger uit
 UPDATE ADRESGEGEVENS
 SET XCOORDINAAT = @projectBuiten1X, YCOORDINAAT = @projectBuiten1Y
@@ -265,8 +263,6 @@ WHERE ADRESID = @adres1
 UPDATE ADRESGEGEVENS
 SET XCOORDINAAT = @projectBuiten2X, YCOORDINAAT = @projectBuiten2Y
 WHERE ADRESID = @adres2
-
-SELECT * FROM PROJECTROL_VAN_GEBRUIKER
 
 --Test of de trigger geslaagd is
 IF EXISTS (SELECT 1
