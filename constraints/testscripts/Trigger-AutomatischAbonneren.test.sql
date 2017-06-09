@@ -1,7 +1,9 @@
 
 --Testvariabelen
 DECLARE @gebruiker VARCHAR(255) = 'Testgebruiker'
+DECLARE @gebruiker1 VARCHAR(255) = 'Testgebruiker1'
 DECLARE @gebruiker2 VARCHAR(255) = 'Testgebruiker2'
+DECLARE @gebruiker3 VARCHAR(255) = 'Testgebruiker3'
 DECLARE @adres1 int = 1000
 DECLARE @adres2 int = 1001
 DECLARE @adres3 int = 1002
@@ -57,11 +59,11 @@ INSERT INTO ADRES_VAN_GEBRUIKER (ADRESID, GEBRUIKERSNAAM)
 --Test of de trigger geslaagd is
 IF EXISTS (SELECT 1
 FROM PROJECTROL_VAN_GEBRUIKER
-WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBinnen1)
+WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBinnen1 AND ROLNAAM = 'BELANGHEBBENDE')
 
 AND EXISTS (SELECT 1
 FROM PROJECTROL_VAN_GEBRUIKER
-WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBinnen2)
+WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBinnen2 AND ROLNAAM = 'BELANGHEBBENDE')
 
 AND NOT EXISTS (SELECT 1
 FROM PROJECTROL_VAN_GEBRUIKER
@@ -97,12 +99,13 @@ DELETE FROM ADRES_VAN_GEBRUIKER WHERE ADRESID = @adres1 OR ADRESID = @adres2
 IF NOT EXISTS (
     SELECT 1
     FROM PROJECTROL_VAN_GEBRUIKER
-    WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBinnen2)
+    WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBinnen2
+)
 --Project 1 lag binnen het verwijderde adres 1, maar ook binnen het niet-verwijderde adres 3 en moet dus niet verwijderd zijn.
 AND EXISTS (
     SELECT 1
     FROM PROJECTROL_VAN_GEBRUIKER
-    WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBinnen1
+    WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBinnen1 AND ROLNAAM = 'BELANGHEBBENDE'
 )
     PRINT 'Test 2 geslaagd.'
 ELSE
@@ -140,12 +143,12 @@ DELETE FROM ADRES_VAN_GEBRUIKER WHERE ADRESID = @adres1 OR ADRESID = @adres2
 IF EXISTS (
   SELECT 1
   FROM PROJECTROL_VAN_GEBRUIKER
-  WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBinnen2)
+  WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBinnen2 AND ROLNAAM = 'BELANGHEBBENDE')
 --Project 1 lag binnen het verwijderde adres 1, maar ook binnen het niet-verwijderde adres 3 en moet dus niet verwijderd zijn.
 AND EXISTS (
   SELECT 1
   FROM PROJECTROL_VAN_GEBRUIKER
-  WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBinnen1
+  WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBinnen1 AND ROLNAAM = 'BELANGHEBBENDE'
 )
   PRINT 'Test 3 geslaagd.'
 ELSE
@@ -181,11 +184,11 @@ WHERE ADRESID = @adres1
 --Test of de trigger geslaagd is
 IF EXISTS (SELECT 1
 FROM PROJECTROL_VAN_GEBRUIKER
-WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBinnen1)
+WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBinnen1 AND ROLNAAM = 'BELANGHEBBENDE')
 
 AND EXISTS (SELECT 1
 FROM PROJECTROL_VAN_GEBRUIKER
-WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBinnen2)
+WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBinnen2 AND ROLNAAM = 'BELANGHEBBENDE')
 
 AND NOT EXISTS (SELECT 1
 FROM PROJECTROL_VAN_GEBRUIKER
@@ -225,12 +228,12 @@ WHERE ADRESID = @adres1
 IF NOT EXISTS (
     SELECT 1
     FROM PROJECTROL_VAN_GEBRUIKER
-    WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBinnen2)
+    WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBinnen2 AND ROLNAAM = 'BELANGHEBBENDE')
 --Project 1 lag binnen het verwijderde adres 1, maar ook binnen het niet-verwijderde adres 3 en moet dus niet verwijderd zijn.
 AND EXISTS (
     SELECT 1
     FROM PROJECTROL_VAN_GEBRUIKER
-    WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBinnen1
+    WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBinnen1 AND ROLNAAM = 'BELANGHEBBENDE'
 )
     PRINT 'Test 5 geslaagd.'
 ELSE
@@ -267,11 +270,11 @@ WHERE ADRESID = @adres2
 --Test of de trigger geslaagd is
 IF EXISTS (SELECT 1
 FROM PROJECTROL_VAN_GEBRUIKER
-WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBuiten1)
+WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBuiten1 AND ROLNAAM = 'BELANGHEBBENDE')
 
 AND EXISTS (SELECT 1
 FROM PROJECTROL_VAN_GEBRUIKER
-WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBuiten2)
+WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID = @projectBuiten2 AND ROLNAAM = 'BELANGHEBBENDE')
 
 AND NOT EXISTS (SELECT 1
 FROM PROJECTROL_VAN_GEBRUIKER
@@ -279,5 +282,49 @@ WHERE GEBRUIKERSNAAM = @gebruiker AND PROJECTID IN (@projectBinnen1, @projectBin
   PRINT 'Test 6 geslaagd.'
 ELSE
   RAISERROR ('Test 6 mislukt.', 16, 1)
+
+ROLLBACK
+
+
+
+--Test 7: Wanneer er 2 projecten worden toegevoegd moeten de gebruikers met een adres binnen 1km van één van deze projecten worden toegevoegd.
+BEGIN TRANSACTION
+
+--Maak testdata
+EXEC spTestInsertParticulier @gebruiker1, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+EXEC spTestInsertParticulier @gebruiker2, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+EXEC spTestInsertParticulier @gebruiker3, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+EXEC spTestInsertAdresgegevens @adres1, NULL, NULL, NULL, @adres1X, @adres1Y
+EXEC spTestInsertAdresgegevens @adres2, NULL, NULL, NULL, @adres2X, @adres2Y
+EXEC spTestInsertAdresgegevens @adres3, NULL, NULL, NULL, @projectBuiten1X, @projectBuiten1Y
+
+INSERT INTO ADRES_VAN_GEBRUIKER (ADRESID, GEBRUIKERSNAAM)
+  VALUES (@adres1, @gebruiker1), (@adres2, @gebruiker2), (@adres3, @gebruiker3)
+
+--Insert projecten, voer trigger uit
+SET IDENTITY_INSERT PROJECT ON
+INSERT INTO PROJECT (PROJECTID, PROJECTTITEL, AANGEMAAKTOP, WERKZAAMHEID, XCOORDINAAT, YCOORDINAAT) VALUES
+  (@projectBinnen1, 'Testproject1', '2017-01-01', 'Dit is een testproject', @projectBinnen1X, @projectBinnen1Y),
+  (@projectBinnen2, 'Testproject2', '2017-01-01', 'Dit is een testproject', @projectBinnen2X, @projectBinnen2Y)
+SET IDENTITY_INSERT PROJECT OFF
+
+--Test of de trigger geslaagd is
+IF EXISTS (SELECT 1
+FROM PROJECTROL_VAN_GEBRUIKER
+WHERE GEBRUIKERSNAAM = @gebruiker1 AND PROJECTID = @projectBinnen1 AND ROLNAAM = 'BELANGHEBBENDE')
+
+AND EXISTS (SELECT 1
+FROM PROJECTROL_VAN_GEBRUIKER
+WHERE GEBRUIKERSNAAM = @gebruiker2 AND PROJECTID = @projectBinnen2 AND ROLNAAM = 'BELANGHEBBENDE')
+
+AND NOT EXISTS (SELECT 1
+FROM PROJECTROL_VAN_GEBRUIKER
+WHERE (GEBRUIKERSNAAM = @gebruiker3 AND PROJECTID IN (@projectBinnen1, @projectBinnen2))
+  OR (GEBRUIKERSNAAM = @gebruiker1 AND PROJECTID = @projectBinnen2)
+  OR (GEBRUIKERSNAAM = @gebruiker2 AND PROJECTID = @projectBinnen1)
+)
+  PRINT 'Test 7 geslaagd.'
+ELSE
+  RAISERROR ('Test 7 mislukt.', 16, 1)
 
 ROLLBACK
