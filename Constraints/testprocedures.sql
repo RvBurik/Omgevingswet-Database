@@ -216,3 +216,27 @@ BEGIN
   END CATCH
 END
 GO
+
+
+
+
+BEGIN
+  DECLARE @trancount INT = @@trancount;
+  IF (@trancount = 0)
+    BEGIN TRAN
+  ELSE
+    SAVE TRAN savepoint;
+  BEGIN TRY
+
+    IF (@trancount = 0)
+      COMMIT
+  END TRY
+  BEGIN catch
+    IF (@trancount = 0)
+      ROLLBACK TRAN
+    ELSE
+      ROLLBACK TRAN savepoint;
+    THROW;
+  END CATCH
+END
+GO

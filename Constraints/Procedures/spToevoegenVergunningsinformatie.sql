@@ -10,6 +10,11 @@ create procedure procToevoegenVergunningsinformatie
 @datum datetime,
 @locatie varchar(255)
 as begin
+	DECLARE @trancount INT = @@trancount;
+  IF (@trancount = 0)
+    BEGIN TRAN
+  ELSE
+    SAVE TRAN savepoint;
 	begin try
 		declare @volgnummer int;
 		select @volgnummer = max(volgnummer) + 1
@@ -26,10 +31,14 @@ as begin
 
 		insert into VERGUNNINGSINFORMATIE (projectid, volgnummer, gebruikersnaam, uitleg, datum, locatie)
 		values (@projectid, @volgnummer, @gebruikersnaam, @uitleg, @datum, @locatie);
-	end try
-
-	begin catch
-		raiserror('Toevoegen van vergunningsinformatie is mislukt.', 16, 1);
-		throw;
-	end catch
+		IF (@trancount = 0)
+				COMMIT
+		END TRY
+		BEGIN catch
+			IF (@trancount = 0)
+				ROLLBACK TRAN
+			ELSE
+				ROLLBACK TRAN savepoint;
+			THROW;
+		END CATCH
 end
