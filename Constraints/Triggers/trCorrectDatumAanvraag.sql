@@ -1,3 +1,10 @@
+--Deze trigger werkt momenteel niet. Niet uitvoeren.
+
+IF EXISTS (SELECT * FROM SYS.TRIGGERS WHERE NAME = 'trCorrectDatumAanvraag') BEGIN
+	DROP TRIGGER trCorrectDatumAanvraag
+END
+go
+
 CREATE TRIGGER trCorrectDatumAanvraag
 ON PROJECTROL_VAN_GEBRUIKER
 

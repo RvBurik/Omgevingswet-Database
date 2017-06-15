@@ -1,5 +1,3 @@
-USE OMGEVINGSWETLOCAL
-GO
 
 --Testscript spAddProject
 SET NOCOUNT ON
