@@ -1,0 +1,29 @@
+IF EXISTS (SELECT * FROM SYS.TRIGGERS WHERE NAME = 'trgBezwaarMakenVanaf18') BEGIN
+	DROP TRIGGER trgBezwaarMakenVanaf18
+END
+go
+
+CREATE TRIGGER trgBezwaarMakenVanaf18
+ON BEZWAAR
+AFTER INSERT, UPDATE
+AS
+	BEGIN
+		IF @@rowcount = 0
+			RETURN
+		BEGIN TRY
+			IF EXISTS (
+				SELECT 1
+				FROM inserted AS I 
+				INNER JOIN PARTICULIER AS P 
+				ON I.GEBRUIKERSNAAM = P.GEBRUIKERSNAAM
+				WHERE P.GEBOORTEDATUM > DATEADD(YEAR, -18, GETDATE())
+			) 
+			BEGIN
+				RAISERROR('Een gebruiker moet minimaal 18 jaar zijn om bezwaar te kunnen maken.', 16,1)
+			END
+		END TRY
+		BEGIN CATCH
+			THROW;
+		END CATCH
+	END
+GO
