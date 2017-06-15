@@ -1,3 +1,8 @@
+IF EXISTS (SELECT * FROM sys.procedures WHERE name = 'spAddUserToProject') BEGIN
+	DROP PROCEDURE spAddUserToProject
+END
+GO
+
 CREATE PROCEDURE spAddUserToProject
 @gebruikersnaam VARCHAR(255), 
 @projectid INTEGER, 

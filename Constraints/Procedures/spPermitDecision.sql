@@ -1,3 +1,7 @@
+IF EXISTS (SELECT * FROM sys.procedures WHERE name = 'spPermitDecision') BEGIN
+	DROP PROCEDURE spPermitDecision
+END
+GO
 
 CREATE PROCEDURE spPermitDecision
 @vergunningsid INTEGER,
