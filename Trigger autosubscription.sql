@@ -1,3 +1,4 @@
+--Old triggers, updated ones moved to constraints/Trigger-AutomatischAbonneren.
 ALTER TABLE PROJECT
 DROP trigger trAutomaticSubscription
 
